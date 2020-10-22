@@ -1,0 +1,105 @@
+---
+title: "Prepare Locations Data for GIS"
+author: "Curtis C. Bohlen, Casco Bay Estuary Partnership"
+date:  "October 13, 2020"
+output:
+  github_document:
+    toc: true
+    fig_width: 7
+    fig_height: 5
+---
+<img
+    src="https://www.cascobayestuary.org/wp-content/uploads/2014/04/logo_sm.jpg"
+    style="position:absolute;top:10px;right:50px;" />
+
+# Introduction
+Casco Bay Estuary Partnership collected sediment samples in 1991, 1994, 2000,
+2001, 2002, 2010, and 2011 to look at concentrations of toxic contaminants in
+Casco Bay surface Sediments. These studies were complemented by data collected
+by under the auspices of EPA's the National Coastal Assessment (NCA) and 
+National Coastal Condition Assessment (NCCA).
+
+Chemicals studied included metals, polycyclic aromatic hydrocarbons (PAHs),
+polychlorinated biphenyls (PCBs), organochlorine pesticides, dioxins and furans,
+and organotins. These contaminants are all persistent in the marine environment.
+
+
+## Sample Locations
+The original (1991) sampling locations were selected by an expert group by
+placing dots on a map of Casco Bay to get sample locations distributed evenly in
+areas known to not have rocky substrate (and where, therefore, soft sediment
+samples could be collected).  Originally, each location was given a location
+code, of the form "XX##", where "XX" is a two letter region code, and "##" is a
+two digit sequence number.
+
+An effort was made in subsequent years to sample the same locations, but for a
+variety of reasons, samples were not always collected in quite the same
+locations. In the Early 2010s, CBEP staff realized sample locations were
+recorded inconsistently, and made a concerted effort to identify where each
+sample had actually been collected, often by going back to paper field data
+sheets associated with sampling events. 
+
+A large fraction, but not all, observations were collected within a hundred
+meters or so of nominal original (1991) sample locations. We grouped sample
+locations into Substations (clusters of samples within about 100m of the
+original sampling locations, or nominal "Station"), assigning new Location Codes
+as needed.  Within Substations we assigned Locations (within the resolution of
+the GPS equipment used at the time, typically ~ 5 to 10 meters, which is smaller
+than expected drift during sample collection.).
+
+In this Notebook, we prepare the geographic data to be imported into ArcGIS to
+facilitate preparation of maps.  We export both Substations (for
+low-resolution mapping) and Locations (for higher resolution use).  The
+original "Stations" do not all have a consistent geographical meaning, and so
+should not be used in mapping.
+
+Note that the "nominal" position of a Substation is the Location with the same
+alphanumeric code (except for the "L." replacing the "S.").  We use that act,
+below, to select the data we map.
+
+# Load Libraries
+
+```{r load_libraries}
+library(tidyverse)
+library(readxl)
+
+```
+
+# Load Data
+## Folder References
+```{r folder_refs}
+sibfldnm <- 'Original_Data'
+parent   <- dirname(getwd())
+sibling  <- file.path(parent,sibfldnm)
+fn <- "Locations.xlsx"
+```
+
+## Load Data
+```{r load_data}
+places_data <- read_excel(file.path(sibling,fn))
+```
+
+# Assemble Simplified GIS Files
+```{r}
+locations_data <- places_data %>%
+  select(-Station, -`NCA Synonym`, -Source)
+```
+
+Note that some NCAA locations were not given substation designations, we add
+them here.  Those stations do not fully match our locations naming conventions, 
+but they are unique and easily calculated, allowing mapping to proceed. 
+```{r}
+substations_data <- locations_data  %>%
+  mutate(Substation = if_else(is.na(Substation),
+                              paste0('S.',substr(Location, 3, nchar(Location))),
+                              Substation)) %>%
+  filter(substr(Location, 3,nchar(Location)) ==
+                  substr(Substation, 3, nchar(Substation)))
+```
+
+#Export Data Files
+```{r}
+write_csv(locations_data, 'locations.csv')
+write_csv(substations_data, 'substations.csv')
+```
+

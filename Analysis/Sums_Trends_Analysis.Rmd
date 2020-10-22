@@ -1,0 +1,247 @@
+---
+title: "Trend Analysis for Selected Sums and Totals of Contaminants"
+author: "Curtis C. Bohlen, Casco Bay Estuary Partnership"
+date:  "October 17, 2020"
+output:
+  github_document:
+    toc: true
+    fig_width: 7
+    fig_height: 5
+---
+<img
+    src="https://www.cascobayestuary.org/wp-content/uploads/2014/04/logo_sm.jpg"
+    style="position:absolute;top:10px;right:50px;" />
+
+# Introduction
+Casco Bay Estuary Partnership collected sediment samples in 1991, 1994, 2000,
+2001, 2002, 2010, and 2011 to look at concentrations of toxic contaminants in
+Casco Bay surface Sediments. These studies were complemented by data collected
+by under the auspices of EPA's the National Coastal Assessment (NCA) and 
+National Coastal Condition Assessment (NCCA).
+
+Chemicals studied included metals, polycyclic aromatic hydrocarbons (PAHs),
+polychlorinated biphenyls (PCBs), organochlorine pesticides, dioxins and furans,
+and organotins.  These contaminants are all persistent in the marine
+environment.
+
+# Load Libraries
+```{r load_libraries}
+library(tidyverse)
+library(readxl)
+library(knitr)
+
+# library(GGally)
+
+library(CBEPgraphics)
+load_cbep_fonts()
+theme_set(theme_cbep())
+
+library(LCensMeans)
+```
+
+# Load Data
+## Folder References
+```{r folder_refs}
+sibfldnm <- 'Derived_Data'
+parent   <- dirname(getwd())
+sibling  <- file.path(parent,sibfldnm)
+niecefldnm <- 'Data_Subsets'
+niece <- file.path(sibling,niecefldnm)
+fn <- "sums_totals.csv"
+```
+
+## Load Sums Data
+```{r load_sums_data}
+sums_data <- read_csv(file.path(niece,fn),
+                      col_types = cols(.default = col_character(),
+                                        Sample_Year = col_double(),
+                                        Replicate = col_integer(),
+                                        CASRN = col_skip(),
+                                        Result = col_double(),
+                                        MDL = col_skip(),
+                                        RL = col_skip(),
+                                        Det_Flag = col_skip(),
+                                        Qualifier = col_skip(),
+                                        `QA Qualifier` = col_skip(),
+                                        Reportable_Result = col_skip(),
+                                        ERL = col_double(),
+                                        ERM = col_double() )
+                      ) %>%
+  mutate(Replicate = Replicate == -1)
+```
+
+
+### Sums Data Caveates
+See the "Review_Data.Rmd" and "Review_Sums_Data.Rmd" files for details.
+
+Sums are defined in Table 4 of the Ramboll report, available in the "2017 Casco
+Bay Sediment Report Tables FINAL.xlsx" file in the "Original_Data" folder, and
+(implicitly) in the "SumGroups.xlsx" file in the same folder.
+
+**The metadata is not entirely clear, but it appears (from examining the Access
+database) that these sums omit non-detects, effectively equating non-detects to
+zero. That is inconsistent with how we  handled non-detects in several other
+toxics data sets, where we have been using maximum likelihood estimators of
+expected values.**
+
+Because of different analytic methods used in different years, sums include a
+relatively small consistent subset of parameters, so they may not be fully
+compatible with available benchmarks.
+
+Many observations from 2010 and 2011 are zeros or NAs, because of high detection
+limits. This is especially  problem for data on Pesticides, PCBs, and Butyltins
+in 2010 and 2011.  Effectively, we have no data on PCBs and Pesticides, and very
+little data on Butyltins from 2010 and 2011.
+
+Ramboll Standardized units in the Access database, so, most sums are expressed
+in ng/g dry weight (~ ppb). The Dioxins and Furans are expressed in ng/kg, or
+pg/g or approximately parts per trillion.  
+
+There are no SQuiRTs for Dioxins and Furans. Instead, Ramboll also expressed
+them in TEQ -- Tox equivalents.  Toxic equivalents provide a way to estimate the
+cumulative toxic effect of a mixture of related chemicals by weighting each
+compound by its relative toxic effect, compared to some reference compound
+(conventionally TCDD).
+
+
+### Change Factor Levels
+```{r}
+sums_data <- sums_data %>%
+
+  mutate(Parameter = factor(Parameter,
+                            levels = c(
+                              "Butyltin (mono+di+tri)",
+                              "CDD/CDF (total)",
+                              "Chlordane (total)",
+                              "DDT+DDE+DDD (sum)",
+                              "PAHs (High MW)",
+                              "PAHs (Low MW)",
+                              "PAHs (total)",
+                              "PCBs (total)",
+                              "Pesticides (total)"),
+                            labels = c("Butyltins",
+                                       "Dioxins and Furans",
+                                       "Chlordanes",
+                                       "DDT Residues",
+                                       "High MW PAHs",
+                                       "Low MW PAHs",
+                                       "Total PAHs",
+                                       "Total PCBs",
+                                       "Pesticides"))) %>%
+  mutate(LVL = factor(LVL, levels = c('Below ERL','Between ERL and ERM',
+                                     'Above ERM'))) %>%
+  mutate(Region = factor(Region, levels = c("Inner Bay",
+                                            "West Bay",
+                                            "East Bay",
+                                            "Outer Bay",
+                                            "Cape Small")))
+```
+
+### Delete Unused Parameters
+To simplify presentation for State of Casco Bay, we will not report all totals.
+we remove unused data here.
+```{r}
+sums_data <- sums_data %>%
+  filter(! Parameter %in% c("Chlordanes", "High MW PAHs",
+                            "Low MW PAHs", "Pesticides")) %>%
+  mutate(Parameter = factor(Parameter,
+                            levels = c("Butyltins",
+                                       "Dioxins and Furans",
+                                       "DDT Residues",
+                                       "Total PAHs",
+                                       "Total PCBs")))
+```
+
+
+
+
+# Preliminary Trend Graphic
+```{r fig.width = 8, fig.height = 4}
+sums_data %>%
+
+  mutate(Parameter = factor(Parameter,
+                            levels = c("Total PAHs", "Total PCBs",
+                                       "DDT Residues", "Dioxins and Furans",
+                                       "Butyltins"))) %>%
+  mutate(Result = if_else(Parameter == "Dioxins and Furans",
+                          Result/1000,
+                          Result)) %>%
+  
+  ggplot(aes(x = Sample_Year, y = Result)) +
+  geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
+  geom_smooth(method = 'lm', se = FALSE, color = cbep_colors()[3],
+              lwd = 0.5, lty = 2) +
+  
+  scale_y_log10(labels=scales::comma) +
+  scale_x_continuous(breaks = c(1990, 2000, 2010)) +
+  scale_color_manual(name = '', values = cbep_colors(), na.value = "firebrick",
+                     labels = c('Below ERL','Between ERL and ERM',
+                                     'Above ERM', "No Reference Defined")) +
+  
+  facet_wrap(~Parameter, ncol = 5) +
+  
+  theme_cbep(base_size = 12) +
+
+  ylab('Concentration (ppb)') +
+  
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
+  theme(legend.position = 'bottom',
+        panel.border = element_rect(fill = NA, size = 0.25))
+```
+
+# Statistical Significance of Linear Trends
+```{r}
+mods <-sums_data %>%
+  group_by(Parameter) %>%
+  nest() %>%
+  mutate(mod = lapply(data,
+                      function(df) lm(log(Result) ~ Sample_Year, data = df)))
+```
+
+```{r}
+mods$Parameter
+lapply(mods$mod,summary)
+```
+SO, all are highly statistically significant, except the DDT residues total.
+
+```{r}
+cat(paste(as.character(mods$Parameter), collapse = '   ...   '))
+cat('\n')
+lapply(mods$mod,plot)
+```
+
+The model diagnostic plots are not great poor, for several of these models, but
+not dreadful. Given high levels of statistical significance, the model
+violations are probably not material, but a more careful analysis might explore
+larger model spaces or use bootstraps or permutation tests.
+
+
+
+# Ordered Factor Analysis by Decade
+We can also simplify tthe model to examine a linear trend by decade, but results
+are generally similar.
+
+```{r}
+mods2 <-sums_data %>%
+  mutate(Era = ordered(Era, levels = c("1990s", "2000s", "2010s"))) %>%
+  group_by(Parameter) %>%
+  nest() %>%
+  mutate(mod = lapply(data,
+                      function(df) lm(log(Result) ~ Era, data = df)))
+
+```
+
+```{r}
+mods2$Parameter
+lapply(mods2$mod,summary)
+```
+So, results are broadly similar.  Note that PAHs show a significant quadratic,
+but not linear trend. Unfortunately, if anything, the diagnostic plots are
+worse, not better.
+
+```{r}
+mods2$Parameter
+lapply(mods2$mod,plot)
+```
+
+

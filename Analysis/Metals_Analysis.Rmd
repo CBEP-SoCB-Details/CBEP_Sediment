@@ -1,0 +1,286 @@
+---
+title: "Trend Analysis for Selected Sums and Totals of Contaminants"
+author: "Curtis C. Bohlen, Casco Bay Estuary Partnership"
+date:  "October 17, 2020"
+output:
+  github_document:
+    toc: true
+    fig_width: 7
+    fig_height: 5
+---
+<img
+    src="https://www.cascobayestuary.org/wp-content/uploads/2014/04/logo_sm.jpg"
+    style="position:absolute;top:10px;right:50px;" />
+
+# Introduction
+Casco Bay Estuary Partnership collected sediment samples in 1991, 1994, 2000,
+2001, 2002, 2010, and 2011 to look at concentrations of toxic contaminants in
+Casco Bay surface Sediments. These studies were complemented by data collected
+by under the auspices of EPA's the National Coastal Assessment (NCA) and 
+National Coastal Condition Assessment (NCCA).
+
+Chemicals studied included metals, polycyclic aromatic hydrocarbons (PAHs),
+polychlorinated biphenyls (PCBs), organochlorine pesticides, dioxins and furans,
+and organotins.  These contaminants are all persistent in the marine
+environment.
+
+# Load Libraries
+```{r load_libraries}
+library(tidyverse)
+library(readxl)
+library(knitr)
+
+library(emmeans)
+
+library(CBEPgraphics)
+load_cbep_fonts()
+theme_set(theme_cbep())
+
+library(LCensMeans)
+```
+
+# Load Data
+## Folder References
+```{r folder_refs}
+sibfldnm <- 'Derived_Data'
+parent   <- dirname(getwd())
+sibling  <- file.path(parent,sibfldnm)
+niecefldnm <- 'Data_Subsets'
+niece <- file.path(sibling,niecefldnm)
+fn <- "metals.csv"
+
+```
+
+## Metals Data
+```{r load_sums_data}
+metals_data <- read_csv(file.path(niece,fn),
+                      col_types = cols(.default = col_character(),
+                                        Sample_Year = col_double(),
+                                        Replicate = col_integer(),
+                                        CASRN = col_skip(),
+                                        Result = col_double(),
+                                        MDL = col_skip(),
+                                        RL = col_skip(),
+                                        Det_Flag = col_skip(),
+                                        Qualifier = col_skip(),
+                                        `QA Qualifier` = col_skip(),
+                                        Reportable_Result = col_skip(),
+                                        ERL = col_double(),
+                                        ERM = col_double() )
+                      ) %>%
+  mutate(Replicate = Replicate == -1) %>%
+  mutate(Parameter = if_else(Parameter == "Chromium (total)",
+                             "Chromium",
+                             Parameter))
+```
+
+
+### Units
+See the "Review_Data.Rmd" for details.
+
+Ramboll Standardized units in the Access database, so, concentrations of metals
+are expressed in $\mu g/g$ dry weight (~ ppm).
+
+### Change Factor Levels
+```{r}
+metals_data <- metals_data %>%
+  mutate(LVL = factor(LVL, levels = c('Below ERL','Between ERL and ERM',
+                                     'Above ERM'))) %>%
+  mutate(Region = factor(Region, levels = c("Inner Bay",
+                                            "West Bay",
+                                            "East Bay",
+                                            "Outer Bay",
+                                            "Cape Small"))) %>%
+  mutate(Era = ordered(Era, levels = c( "1990s", "2010s", "2000s")))
+```
+
+
+# Select which Metals to Analyze
+
+```{r}
+(xt <- xtabs(~ Parameter + Era, data = metals_data))
+
+```
+
+## Remove metals data on metals we will not analyze
+We restrict analysis to those metals sampled in all three Eras.
+```{r}
+rowcount <- apply(xt,1,function(x) sum(x>0))
+selected <- names(rowcount[rowcount>2])
+
+metals_data <- metals_data %>%
+  filter(Parameter %in% selected)
+rm(selected)
+```
+
+
+
+# Trend Analysis
+On log-transformed data.
+```{r}
+mods <-metals_data %>%
+  filter(Parameter != 'Tellurium') %>%
+  group_by(Parameter) %>%
+  nest() %>%
+  mutate(mod = lapply(data,
+                      function(df) lm(log(Result) ~ Sample_Year, data = df)))
+```
+
+## Utility functions
+```{r}
+ mod_rev <- function(nm, m) {
+ for (n in seq_along(m)) {
+   cat("-------------------------------------\n")
+   cat(nm[[n]], '\n')
+   print(anova(m[[n]]))
+   print(summary(m[[n]]))
+   }
+ }
+
+
+```
+
+
+## Identify nominally significant Regressions
+From the log-linear models.  We use P < 0.025 because of relatively poor model
+diagnostics.  We don't want to trust "borderline" P values, and we don't want to
+go to the trouble (for this purpose) of using boorstraps or other methods to
+assess confidence limits more rigorously.
+```{r}
+res <- lapply(mods$mod,function(m) summary(m)$coefficients[2,4])
+names(res) <- mods$Parameter
+```
+
+So, statistically significant regressions include the following
+```{r}
+sig_lms <- names(res[res<0.025])
+sig_lms
+```
+
+## Significant Slope Estimates
+Lets look at the Parameters of significant regressions
+```{r}
+cs <- lapply(mods$mod,function(m) coefficients(m))
+names(cs) <- mods$Parameter
+cs <- cs[res<0.05]
+cs
+```
+
+So Cadmium, Selenium and Silver are increasing, while the others are decreasing.
+Ramboll wrote about Selenium, and guessed the trend may be due to changes in
+laboratry methods.  The other two were not discussed.
+
+```{r}
+oldpar <- par()
+par(mfrow = c(2,2))
+paste(as.character(mods$Parameter[res<0.05]), collapse = '   ...   ')
+cat('\n')
+lapply(mods$mod[res<0.05],plot)
+par(oldpar)
+```
+
+The model diagnostic plots are not great for several of these models, but
+not dreadful. The biggest problem is that the data (even after transformation)
+is not normally distributed, generally with heavy tails.  We should not take
+reported p values too seriously.
+
+A more careful analysis would:  
+1.  Handle non-detects explicitly  
+2.  Test robust regression;  
+3.  Test alternate GLMs that handle more heavily skewed data, or  
+4.  Use permutation tests to generate confidence intervals and "p values"  
+
+Since our main purpose is development of graphics, these steps are not strictly
+necessary here.
+
+# Ordered Factor Analysis by Decade
+We can implement a similar model, fitting Eras instead of Sample_Years, by
+fitting an ordered factor.  The default coding for an ordered factor splits the
+fit into linear and quadratic terms, which here is  appropriate.
+
+Results are generally similar to teh linear model.
+
+```{r}
+mods <- mods %>%
+  mutate(mod2 = lapply(data,
+                      function(df) lm(log(Result) ~ Era, data = df)))
+```
+
+## Extract p values 
+```{r}
+l <- lapply(mods$mod2, function(m) list(linear    = summary(m)$coefficients[2,4],
+                                        quadratic = summary(m)$coefficients[3,4]))
+names(l) <- mods$Parameter
+tt <- as_tibble((l)) %>%
+  unnest(cols = c(Arsenic, Cadmium, Chromium, Copper, Iron, Lead, Nickel, Selenium, 
+    Zinc, Mercury, Silver)) %>%
+  mutate(Type = c("Linear", "Quadratic")) %>%
+  select(Type, everything())
+tt
+```
+
+```{r}
+tt %>%
+summarize(across(-Type, ~ min(.) < 0.025)) %>%
+  pivot_longer(cols = everything(), names_to = 'Parameter',
+               values_to ='Significant_Trend') %>%
+  filter(Significant_Trend) %>%
+  pull(Parameter)
+```
+That is the SAME list we came up with looking at the linear regression model.  
+
+But only TWO show a linear trends this way.  Most sites showed quadratic terms.
+That implies most metals dropped more over the  more recent decade. (We could
+check that using difference contrasts, but *post-hoc* tests are just as easy).
+```{r}
+tt %>%
+summarize(across(-Type, ~ .[1] < 0.025)) %>%
+  pivot_longer(cols = everything(), names_to = 'Parameter', values_to ='Significant_Trend') %>%
+  filter(Significant_Trend) %>%
+  pull(Parameter)
+```
+
+# Multivariate Linear Model
+We ran versions of these model with interactions, but interactions were seldom
+statistically important, and we omit them here to simplify presentation.
+```{r}
+mods <- mods %>%
+  mutate(mod3 = lapply(data,
+                      function(df) lm(log(Result) ~ Era + Region, data = df)))
+names(mods$mod3) <- mods$Parameter
+```
+
+In interpreting results, remember that the default coding for the Region factor
+uses the Inner Bay as the reference level, so tests all show difference from
+that base level.  *Post hoc* test will follow.
+
+## Which Parameters Show Significant Temporal Trend?
+```{r}
+l <- lapply(mods$mod3, function(m) list(linear    = summary(m)$coefficients[2,4],
+                                        quadratic = summary(m)$coefficients[3,4]))
+names(l) <- mods$Parameter
+tt <- as_tibble((l)) %>%
+  unnest(cols = c(Arsenic, Cadmium, Chromium, Copper, Iron, Lead, Nickel, Selenium, 
+    Zinc, Mercury, Silver)) %>%
+  mutate(Type = c("Linear", "Quadratic")) %>%
+  select(Type, everything())
+tt
+```
+```{r}
+tt %>%
+summarize(across(-Type, ~ min(.) < 0.025)) %>%
+  pivot_longer(cols = everything(), names_to = 'Parameter',
+               values_to ='Significant_Trend') %>%
+  filter(Significant_Trend) %>%
+  pull(Parameter)
+```
+So a (slightly) more sophisticated model, which reduces error only picks up a 
+trend in copper.
+
+Might be appropriate to write a function to select prefered models and pass that to teh 
+
+```{r}
+mod_rev(mods$Parameter, mods$mod3)
+```
+
+

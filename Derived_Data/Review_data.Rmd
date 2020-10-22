@@ -1,0 +1,538 @@
+---
+title: "Review CBEP Historical Sediment Data"
+author: "Curtis C. Bohlen, Casco Bay Estuary Partnership"
+date:  "October 13, 2020"
+output:
+  github_document:
+    toc: true
+    fig_width: 7
+    fig_height: 5
+---
+<img
+    src="https://www.cascobayestuary.org/wp-content/uploads/2014/04/logo_sm.jpg"
+    style="position:absolute;top:10px;right:50px;" />
+
+# Introduction
+Casco Bay Estuary Partnership collected sediment samples in 1991, 1994, 2000,
+2001, 2002, 2010, and 2011 to look at concentrations of toxic contaminants in
+Casco Bay surface Sediments. These studies were complemented by data collected
+by under the auspices of EPA's the National Coastal Assessment (NCA) and 
+National Coastal Condition Assessment (NCCA).
+
+Chemicals studied included metals, polycyclic aromatic hydrocarbons (PAHs),
+polychlorinated biphenyls (PCBs), organochlorine pesticides, dioxins and furans,
+and organotins.  These contaminants are all persistent in the marine
+environment.
+
+
+## Sample Locations
+The original (1991) sampling locations were selected by an expert group by
+placing dots on a map of Casco Bay to get sample locations distributed evenly in
+areas known to not have rocky substrate (and where, therefore, soft sediment
+samples could be collected).  Originally, each location was given a location
+code, of the form "XX##", where "XX" is a two letter region code, and "##" is a
+two digit sequence number.
+
+An effort was made in subsequent years to sample the same locations, but for a
+variety of reasons, samples were not always collected in quite the same
+locations. In the Early 2010s, CBEP staff realized sample locations were
+recorded inconsistently, and made a concerted effort to identify where each
+sample had actually been collected, often by going back to paper field data
+sheets associated with sampling events. 
+
+A large fraction, but not all, observations were collected within a
+hundred meters or so of nominal original (1991) sample locations. We grouped
+sample locations into Locations (clusters of samples within about 100m of the
+original sampling locations), assigning new Location Codes as needed.  Within
+Locations we assigned Substations (within the resolution of the GPS equipment
+used at the time, typically ~ 5 to 10 meters, which is smaller than expected
+drift during sample collection.).  
+
+To simplify data analysis and visualization, samples are "binned" into five
+major subregions of the Bay, as follows
+
+(descriptions from 2017 Ramboll Environ  report to CBEP):
+
+> Inner Bay: The Inner Bay includes the western most part of Casco Bay,
+encompassing the Fore River and Presumpscot River estuaries. The cities of
+Portland and South Portland and the towns of Falmouth and Yarmouth are located
+within its drainage.
+
+> Outer Bay: The Outer Bay includes the large open water area to the south of
+the other regions. It represents the area that connects Casco Bay to the rest of
+the Gulf of Maine.
+
+> West Bay: West Bay extends from Yarmouth on the west to Orrs and Bailey
+Islands on the east. It includes Maquoit and Middle Bays, Harpswell Sound, and
+the communities of Freeport, Harpswell, and parts of southern Brunswick. The
+Royal and Harraseeket Rivers discharge into West Bay.
+
+> East Bay: East Bay includes the inland portions of Casco Bay bordered by Orrs
+and Bailey Islands on the west and Phippsburg on the east. It includes Quahog
+Bay and the New Meadows River in southern Brunswick and Phippsburg.
+
+> Cape Small: Cape Small is the eastern most region of the bay. It includes the
+southern end of the Phippsburg peninsula to Small Point. The mouth of the Lower
+Kennebec River flows into the Gulf of Maine to the east of Phippsburg. While it
+is not part of Casco Bay, coastal circulation patterns indicate that the
+discharge from the Lower Kennebec (which includes flows from the Kennebec and
+Androscoggin Rivers) is entrained into the bay in the Cape Small area (Janzen et
+al. 2005).
+
+
+# Load Libraries
+
+```{r load_libraries}
+library(tidyverse)
+library(readxl)
+library(knitr)
+
+# library(GGally)
+
+library(CBEPgraphics)
+load_cbep_fonts()
+
+library(LCensMeans)
+```
+
+# Load Data
+## Folder References
+```{r folder_refs}
+sibfldnm <- 'Original_Data'
+parent   <- dirname(getwd())
+sibling  <- file.path(parent,sibfldnm)
+fn <- "Casco_Bay_Sediment_Data_Query.xlsx"
+```
+
+## Load Data
+```{r load_data}
+sedtox_data <- read_excel(file.path(sibling,fn),
+    col_types = c("text", "text", "text", 
+        "text", "numeric", "numeric", "text", 
+        "numeric", "date", "numeric", "text", 
+        "text", "text", "text", "text", "numeric", 
+        "numeric", "numeric", "text", "text", 
+        "numeric", "text", "text", "text", 
+        "text"))
+```
+
+### Add the "Era" variable
+```{r add_era}
+sedtox_data <- sedtox_data %>%
+  mutate(Era = (Sample_Year-1990) %/% 10)%>%
+  mutate(Era = factor(Era, labels = c('1990s', '2000s', '2010s')))
+
+xtabs(~Sample_Year + Era, data = sedtox_data)
+```
+# Sums Data
+```{r load_sums_data}
+fn <- "Sums_Query.xlsx"
+
+sums_data <- read_excel(file.path(sibling,fn), 
+    col_types = c("text", "text", "text", 
+        "text", "numeric", "numeric", "text", 
+        "numeric", "date", "numeric", "text", 
+        "text", "text", "text", "text", "numeric", 
+        "numeric", "numeric", "text", "text", 
+        "numeric", "numeric", "numeric", 
+        "text", "text")) %>%
+  mutate(Era = (Sample_Year-1990) %/% 10)%>%
+  mutate(Era = factor(Era, labels = c('1990s', '2000s', '2010s')))
+```
+
+# Examine Data Structure
+## Categories Sampled Each Year
+```{r}
+xtabs(~Sample_Year + Parameter_Group, data = sedtox_data)
+```
+The category "Radio" includes only measurement of Uranium-238, not otherwise
+studied, so of little value.  We don't track it further.
+
+## Parameters and Parameter Groups
+```{r}
+the_order <- as.numeric(factor(sedtox_data$Parameter_Group))
+
+tmp <- sedtox_data %>%
+  mutate(Parameter = factor(Parameter,
+                            levels = levels(fct_reorder(sedtox_data$Parameter, the_order))))
+                                                 
+knitr::kable(xtabs(~Parameter + Parameter_Group, data = tmp))
+rm(tmp)
+```
+
+Note that parameters include totals and sums.  But, confusingly, not all sums
+included here were (re)calculated in the Access database Sums table.  Some
+must pre-date Ramboll's work.  
+
+
+# Units
+```{r}
+xtabs(~Era + Parameter_Group  + Units, data = sedtox_data)
+```
+
+Note that metals are in $\mu g/g$ or ppm, organics are in $n g/g$ or ppb,
+physical observations in percent.
+
+# Subdivide Data By Parameter Group
+It is worth separating by Parameter Group into smaller, more manageable
+data sets.  We could have done this more compactly with lapply, but by
+repeating code, we could specify file names simply and directly. 
+
+```{r}
+diox_data   <- sedtox_data %>% filter(Parameter_Group == 'CDDF')
+metals_data <- sedtox_data %>% filter(Parameter_Group == 'Inorganic')
+tbt_data    <- sedtox_data %>% filter(Parameter_Group == 'Organotin')
+pah_data    <- sedtox_data %>% filter(Parameter_Group == 'PAH')
+pcb_data    <- sedtox_data %>% filter(Parameter_Group == 'PCB')
+pest_data   <- sedtox_data %>% filter(Parameter_Group == 'Pesticide')
+phys_data   <- sedtox_data %>% filter(Parameter_Group == 'Physical')
+```
+
+The challenge we have with many of these smaller data sets will be extracting
+meaning in a simple way. We have far too many parameters to include in the
+Chapter in anything but a confusing way.  This particular data presentation
+includes both individual parameters and sums, so we need to extract information
+one parameter at a time, not do blind sums by parameter groups.
+
+Unfortunately, the list of parameters actually obscures which are sums and
+which are field measurements of mixtures.
+
+# Check for Other Sums and Totals in the Data
+## The "Official" Totals
+Ramboll Calculated the following "Official" Totals, which  
+
+1. Should be in the dataset, and  
+2. Are easy to remove because we have a complete list. 
+```{r}
+xtabs(~ Parameter + Parameter_Group , data = sums_data)
+```
+
+## Checking All Data Subsets
+We look at each of the data subsets to identify "totals" and sums that are in
+the original data, but do not represent original observations. We do this simply
+by examining the list of parameters in each group.
+
+### Butyl Tin Totals
+```{r}
+xtabs(~ Parameter + Parameter_Group , data = tbt_data)
+```
+Only a single total, which is the "official" total recalculated by Ramboll.
+
+### Dioxin Totals
+```{r}
+xtabs(~ Parameter + Parameter_Group , data = diox_data)
+```
+The only "Official" Dioxin-related total is
+*  CDD/CDF (total)
+
+A small number of samples (17) include other values flagged as (total). 
+*  HpCDD (total)
+*  HpCDF (total)
+*  HxCDD (total)
+*  HxCDF (total)
+*  PeCDD (total)
+*  PeCDF (total)
+*  TCDD (total)
+*  TCDF (total)
+
+Three other items turn up in 62 samples.  They are not labeled as totals,
+and they refer to specific tetra- penta- and hexa- chlorobiphenyls.  
+(note that these are listed under `Parameter_Group == "CDDF"`, NOT 
+`Parameter_Group == "PCB"`.)
+*  PCB-077 (3,3',4,4'-TeCB) (dioxin-like)  
+*  PCB-126 (3,3',4,4',5-PeCB) (dioxin-like)  
+*  PCB-169 (3,3',4,4',5,5'-HxCB) (dioxin-like)  
+
+It is probably not an accident that the sum of 62 + 17 = 79, which appears to
+be the total number of samples.
+
+Reviewing the full list of parameters, None of these appear to be sums. 
+
+HpCDD, for example, refers to Heptachlorodibenzo-para-dioxin, which occurs in a
+number of isomers, which are chemically difficult to distinguish in samples.  
+The "(total)" here appears to refer to a total of multiple (analytically 
+indistinguishable) isomers.  NO other HpCDD appears in the parameter list,
+so this can not be a sum of other anylates.
+
+A quick check suggest we are looking at differences in reporting from different
+years.  The 17 samples with `HpCDD (total)` and its cousins are all from 2010.
+
+```{r}
+selected <- c('HpCDD (total)', "PCB-077 (3,3',4,4'-TeCB) (dioxin-like)")
+diox_data %>%
+  select(Sample_ID, Sample_Year, Method, Parameter, Result) %>%
+  filter(Parameter %in% selected) %>%
+  pivot_wider(c(Sample_ID, Sample_Year, Method), names_from = Parameter, values_from = Result)
+```
+
+### Conclusion
+Remaining "Totals" are NOT sums that we should remove.
+
+## Metals Data Totals 
+```{r}
+xtabs(~ Parameter + Parameter_Group , data = metals_data)
+```
+No Totals.  "Chromium (total) refers to measuring all oxidation states of
+chromium, not a sum of other observations.
+
+## PAH Data Totals
+```{r}
+xtabs(~ Parameter + Parameter_Group , data = pah_data)
+```
+
+So under Pahs, we have six totals,
+
+The following PAH Totals are NOT included in the "official" totals, and 
+should be removed from the data:
+
+*  PAHs (High MW 13)  
+*  PAHs (Low MW 9)  
+*  PAHs (total 22)  
+
+## PCB Data Totals
+```{r}
+xtabs(~ Parameter + Parameter_Group , data = pcb_data)
+```
+
+Here the only total is the "official" total, so we are probably O.K.  It is
+not clear how we should handle the three "(unidentified PCBs)".
+
+## Pesticides Data Totals
+```{r}
+xtabs(~ Parameter + Parameter_Group , data = pest_data)
+```
+The three totals here  
+*  Chlordane (total) 
+*  DDT+DDE+DDD (sum)  
+*  Pesticides (total) 
+are all "official" totals.
+
+## Physical Data Totals
+```{r}
+xtabs(~ Parameter + Sample_Year , data = phys_data)
+```
+
+None of the parameters here with 'Total' in the names are sums, however, some 
+of the OTHER values represent sums calculated before the data was submitted to
+Ramboll.
+
+*  **Percent Silt and Clay** is (almost always) a sum of separate silt and clay
+   values. However, seven 2000 samples, one 2002 sample and seven 2010 samples
+   only have "Percent Sand" and "Percent Silt and Clay" values.
+*  Sand was subdivided into more precise sand fractions only in 2010 and 2011.
+   **Percent Sand** in those two years was USUALLY a SUM of the other sand
+   fractions , except for  seven samples from the NCCA from 2010.
+*  **Percent Total Grain Size** was a QA/QC check testing whether the sum of all 
+   grain size data sums to one (or close to it). 
+   
+Note that "Percent Gravel" was inconsistently reported, making it unclear
+whether all other grain size fractions are comparable, at least for the handful
+of sites with high gravel.
+
+These sums probably need to be removed and recalculated, without removing the
+data associated with samples where we have no finer-scale data.
+
+   
+### Checks on sums and totals
+#### Silt And Clay Totals
+Silt Clay is consistently EITHER the sum of other silt and clay values
+or a measuremetn where silt and clay values are not also available.
+```{r}
+phys_data %>%
+  filter(Parameter != 'Organic Carbon (total)') %>%
+  filter(Parameter != 'Solids (total)') %>%
+  group_by(Sample_ID) %>%
+  summarize(year = first(Sample_Year),
+         sand = sum(grepl('Sand', Parameter) * Result),
+         silt = sum((grepl('Silt', Parameter) & ! grepl('Clay', Parameter)) * 
+                      Result),
+         clay = sum((grepl('Clay', Parameter) & ! grepl('Silt', Parameter)) *
+                      Result),
+         siltclay = sum((Parameter == "Percent Silt and Clay") *
+                          Result),
+         test = siltclay - (silt + clay) < 0.01 | (silt == 0 & clay == 0),
+         .groups = 'drop')
+         
+```
+
+We can selectively remove "Silt + Clay" values that are sums of other variables
+as follows:
+```{r}
+phys_data %>%
+  filter(Parameter != 'Organic Carbon (total)') %>%
+  filter(Parameter != 'Solids (total)') %>%
+  group_by(Sample_ID) %>%
+  mutate(silt = sum((grepl('Silt', Parameter) & ! grepl('Clay', Parameter)) * 
+                      Result),
+         clay = sum((grepl('Clay', Parameter) & ! grepl('Silt', Parameter)) *
+                      Result),
+         test = ! (silt == 0 & clay == 0)) %>%
+  ungroup() %>%
+  filter( ! (Parameter == 'Percent Silt and Clay' & test)) %>%
+  select(-silt, -clay, -test)
+         
+```
+
+#### Sand Totals
+
+Here's a quick way to find the samples from 2010 and 2011 we do NOT want to change.
+```{r}
+phys_data %>%
+  filter(Sample_Year > 2009, grepl("NCCA", Sample_ID)) %>%
+  arrange(Parameter)
+
+```
+
+So we can invert that and add a filter for the parameter, and find the data 
+rows we want to delete.
+```{r}
+phys_data %>%
+  filter(Sample_Year > 2009,
+         ! grepl("NCCA", Sample_ID),
+         Parameter == 'Percent Sand')
+```
+
+Note that we found 75 values, exactly what we would expect based on sample
+frequencies in the cross-tabs, above.
+
+Lets check those sites to make sure the "Percent Sand" value really is a sum.
+```{r}
+phys_data %>%
+  filter(Sample_Year > 2009) %>%
+  group_by(Sample_ID) %>%
+  summarize(sand = sum((grepl('Sand', Parameter) & ! Parameter == 'Percent Sand') * 
+                      Result),
+         total = sum((Parameter == 'Percent Sand') * 
+                      Result),
+         test =  abs(total - sand) < 0.001,
+         .groups = 'drop')
+         
+```
+It is.
+
+## Total Grain Size
+
+Percent Total Grain Size was not calculated for all samples, and appears to
+Include the Gravel Fraction.  It should be removed from the data as inconsistent
+and possibly misleading.
+
+```{r}
+unique(phys_data$Parameter)
+```
+
+
+```{r}
+phys_data %>%
+  filter(Parameter != 'Organic Carbon (total)') %>%
+  filter(Parameter != 'Solids (total)') %>%
+  group_by(Sample_ID) %>%
+  summarize(year = first(Sample_Year),
+         sand = sum(grepl('Sand', Parameter) * Result),
+         siltclay = sum((Parameter == "Percent Silt and Clay") *
+                          Result),
+         gravel = sum((Parameter == 'Percent Gravel') * Result),
+         total = sum((Parameter == 'Percent Total Grain Size') * Result),
+         test = abs(total + gravel - 100) < 0.1,
+         .groups = 'drop')
+         
+```
+
+```{r}
+phys_data %>%
+  filter(Parameter != 'Organic Carbon (total)') %>%
+  filter(Parameter != 'Solids (total)') %>%
+  filter(Sample_ID == 'CBEP2010-WB08')
+```
+
+
+
+The inconsistent reporting of the Gravel Fraction makes it impossible to be sure
+how to interpret the sand and silt/sand fractions for all samples.  Best
+practice here may be to recalculate those values based on the gravel-free
+fraction.  We test that idea here.
+
+```{r}
+phys_data %>%
+  group_by(Sample_ID, Replicate) %>%
+  summarize(year = first(Sample_Year),
+         total = sum(grepl('Percent Total Grain Size', Parameter) * Result),
+         total2 = sum(Result) - 
+           sum((Parameter == 'Percent Gravel') * Result ) -
+           sum((Parameter == 'Percent Silt') * Result ) -
+           sum((Parameter == 'Percent Clay') * Result ),
+         gravel = sum((Parameter == 'Percent Gravel') * Result),
+         .groups = 'drop')
+         
+```
+
+That points out that ZERO values here are "really" NAs.  
+
+
+# Examine Structure of Sums Data
+```{r}
+xtabs(~Era + Parameter_Group, data = sums_data)
+```
+
+# Parameters and Parameter Groups
+```{r}
+the_order <- as.numeric(factor(sums_data$Parameter_Group))
+
+tmp <- sums_data %>%
+  mutate(Parameter = factor(Parameter,
+                            levels = levels(fct_reorder(Parameter, the_order))))
+                                                 
+knitr::kable(xtabs(~Parameter + Parameter_Group, data = tmp))
+rm(tmp)
+```
+
+Those look pretty convenient for comparison purposes.
+
+**The metadata is not entirely clear, but it appears (from examining the Access
+database) that these sums omit non-detects, effectively equating non-detects to
+zero. That is inconsistent with how we  handled non-detects in several other
+toxics data sets, where we have been using maximum likelihood estimators of
+expected values.**
+
+# Units
+```{r}
+xtabs(~Era + Parameter_Group  + Units, data = sums_data)
+```
+
+Ramboll Standardized units in the Access database, so, MOST sums are expressed
+in ng/g dry weight (~ ppb). 
+
+The Dioxins and Furans are expressed in ng/kg, or pg/g or approximately parts
+per trilion.  There are no Squirts for Dioxins and Furans.  Instead, Ramboll
+ALSO expressed them in TEQ -- Tox equivalents.  Toxic equivalents provide a way
+to estimate the cumulative toxic effect of a mixture of related chemicals by 
+eighting each compound by its relative toxic effect, compared to some reference
+compound (conventionally TCDD).
+
+# Load SQuiRTs Data
+We compare those totals to the SQuiRTs, when availalbe. Ramboll Environ's Access
+database again contains a table derived from the SQuiRTs, containing ERL
+(Effects Range Low)  and ERM (Effects Range Medium) values for selected
+parameters.
+
+```{r load_squirts}
+fn <- "SQuiRTs.xlsx"
+squirts_data <- read_excel(file.path(sibling,fn), 
+    col_types = c("skip", "text", "text", 
+        "text", "numeric", "numeric", "text", 
+        "numeric", "numeric", "text", "skip"))
+```
+
+## Units
+We need to ensure that we are using similar units for analysis and comparison
+to the SQuiRTs.  The SQuiRTs Table contains two different sets of values,
+with different units.  We want to check both.
+
+```{r}
+xtabs(~ Param_Norm + Units_org , data = squirts_data)
+xtabs(~ Param_Norm + Units_fin, data = squirts_data)
+```
+So, SQuiRTs are originally in ppb, but Ramboll Environ converted units to
+µg/g dry or ng/g dry, consistent with the way concentrations were also reported.
+
+
+
