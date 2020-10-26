@@ -1,0 +1,341 @@
+---
+title: "Developing a Table for Metals"
+author: "Curtis C. Bohlen, Casco Bay Estuary Partnership"
+date:  "October 22, 2020"
+output:
+  github_document:
+    toc: true
+    fig_width: 7
+    fig_height: 5
+---
+<img
+    src="https://www.cascobayestuary.org/wp-content/uploads/2014/04/logo_sm.jpg"
+    style="position:absolute;top:10px;right:50px;" />
+
+# Introduction
+Casco Bay Estuary Partnership collected sediment samples in 1991, 1994, 2000,
+2001, 2002, 2010, and 2011 to look at concentrations of toxic contaminants in
+Casco Bay surface Sediments. These studies were complemented by data collected
+by under the auspices of EPA's the National Coastal Assessment (NCA) and 
+National Coastal Condition Assessment (NCCA).
+
+Chemicals studied included a number of different metals.  Here we develop a 
+narrative table for the State of the Bay Report.
+
+
+
+# Load Libraries
+```{r load_libraries}
+library(tidyverse)
+library(mblm)
+library(emmeans)
+
+library(CBEPgraphics)
+load_cbep_fonts()
+theme_set(theme_cbep())
+
+library(LCensMeans)
+```
+
+# Load Data
+## Folder References
+```{r folder_refs}
+sibfldnm <- 'Derived_Data'
+parent   <- dirname(getwd())
+sibling  <- file.path(parent,sibfldnm)
+niecefldnm <- 'Data_Subsets'
+niece <- file.path(sibling,niecefldnm)
+fn <- "metals.csv"
+
+```
+
+## Metals Data
+```{r load_metals_data}
+metals_data <- read_csv(file.path(niece,fn),
+                      col_types = cols(.default = col_character(),
+                                        Sample_Year = col_double(),
+                                        Replicate = col_integer(),
+                                        CASRN = col_skip(),
+                                        Result = col_double(),
+                                        MDL = col_double(),
+                                        RL = col_double(),
+                                        Det_Flag = col_integer(),
+                                        Qualifier = col_skip(),
+                                        `QA Qualifier` = col_skip(),
+                                        Reportable_Result = col_skip(),
+                                        ERL = col_double(),
+                                        ERM = col_double() )
+                      ) %>%
+  mutate(Replicate = Replicate == -1) %>%
+  mutate(Det_Flag = Det_Flag == 1) %>%
+  mutate(nd_flag = ! Det_Flag) %>%
+  mutate(Parameter = if_else(Parameter == "Chromium (total)",
+                             "Chromium",
+                             Parameter))
+```
+
+### Change Factor Levels
+```{r}
+metals_data <- metals_data %>%
+  mutate(LVL = factor(LVL, levels = c('Below ERL','Between ERL and ERM',
+                                     'Above ERM'))) %>%
+  mutate(Region = factor(Region, levels = c("Inner Bay",
+                                            "West Bay",
+                                            "East Bay",
+                                            "Outer Bay",
+                                            "Cape Small"))) %>%
+  mutate(Era = ordered(Era, levels = c( "1990s", "2010s", "2000s")))
+```
+
+## Select Metals to Be Analyzed
+We restrict analysis to those metals sampled in all three Eras.
+```{r}
+xt <- xtabs(~ Parameter + Era, data = metals_data)
+rowcount <- apply(xt,1,function(x) sum(x>0,na.rm = TRUE))
+selected <- names(rowcount[rowcount>2])
+
+metals_data <- metals_data %>%
+  filter(Parameter %in% selected)
+rm(selected, xt)
+```
+
+## Estimating Non-detects
+Using our lognormal maximum likelihood procedure.  We apply this procedure to
+the entire data set for each metal at one time, which may bias results if data
+should not be considered as being drawn from a single distribution (e.g., if
+concentrations are dramatically different in different Regions or Eras).  Because
+detection limits are uniformly low, often well below most observed values,
+this is likely to have relatively small effect on slope estimates, which are our
+focus here.
+
+Note that conditional means associated with rare non-detects often can not be
+readily estimated using the existing algorithm, because it requires drawing a
+huge sample to get enough samples below the detection limits.
+
+We up the parameter `max_samp` to 5 million in hopes of reducing the number of
+times that happens.  That slows this computation so that it takes several
+minutes, but even so, we get a few observations where we can not estimate a
+conditional mean. (Note that each notification, below, is for a single
+observation).  This behavior may be addressed in a future version of the 
+LCMeans package.
+
+This is a time-consuming step, so we set cache = true.  That reduces time for 
+reknitting the notebook, but does not help when running the notebook
+interactively.  An alternative would be to save a version of the data (with
+estimated conditional means) after this step, and not recalculate, but that
+runs the risk of leaving in outdated data if upstream data is modified.
+```{r cache = TRUE}
+metals_data <- metals_data %>%
+  mutate(val = if_else(nd_flag, MDL, Result)) %>%
+  group_by(Parameter) %>%
+  mutate(Res_ML = sub_cmeans(val, nd_flag, max_samp = 5*10^6)) %>%
+  ungroup(Parameter)
+```
+
+# Robust Regression models
+We can conduct a robust regression, based on Theil-Sen slope estimators
+(actually a slightly more robust estimator by Siegel).
+
+We could not get the following to work inside a pipe or `lapply()` call, so we
+fell back on using a loop.  Also, mblm does not like having a log transform
+in the model formula, so we had to move the log transform outside the call.
+```{r}
+mods <-metals_data %>%
+  group_by(Parameter) %>%
+  nest()
+
+lmods <- list()
+for (n in seq_along(mods$Parameter)) {
+  metal <- mods$Parameter[n]
+  tmp <- metals_data %>%
+    filter(Parameter == metal) %>%
+    mutate(logval = log(Res_ML)) %>%
+    filter(! is.na(Res_ML))
+  rlm <- mblm(logval ~ Sample_Year, data = tmp)
+  lmods[[metal]] <- rlm
+}
+
+mods$rlm <- lmods
+rm(lmods, rlm, tmp, metal)
+```
+
+## T-S Slopes
+```{r}
+rlm_slopes <- unlist(lapply(mods$rlm ,function(m) coefficients(m)[[2]]))
+names(rlm_slopes) <- mods$Parameter
+```
+
+## Check Significance with Kendall's Tau
+There is some controversy regarding the appropriateness of different approaches
+to estimating statistical significance of these slopes. The default approach
+provided in the `mblm` package is not well supported.  Instead, we use the
+related Kendall's Tau, which is generally more conservative.
+```{r}
+mods <- mods %>%
+  mutate(tau_test = 
+           lapply(data,
+                  function(df) cor.test(~ log(Res_ML) + Sample_Year,
+                                        data = df,
+                                        method = 'kendall')))
+```
+
+```{r} 
+tau_p_vals = lapply(mods$tau_test, function(t) t$p.value)
+names(tau_p_vals) <- mods$Parameter
+
+sig_tau <- names(tau_p_vals[tau_p_vals<0.05])
+rlm_slopes[sig_tau]
+```
+So, we now end up with cadmium showing an increase, Chromium, Lead, and Nickle
+declining, and other metals showing no trend.
+
+
+
+# Generating a Summary Table of Metals
+A graphic for metals will take up too much room in the report, so we want to
+generate a table summarizing results for metals.  We want to indicate
+"Increaseing", "Decreasing", "No Trend" for each metal, and add something about
+the fraction of observations exceeding thresholds in 2010.
+
+## Trend Words
+```{r}
+tau =   unlist(lapply(mods$tau_test, function(t) t$estimate))
+tau_words <- with(mods, if_else(! (tau_p_vals < 0.05),
+                             "No Trend",
+                             if_else(rlm_slopes < 0, 'Decreasing',
+                                     'Increasing')))
+names(tau_words) <- mods$Parameter
+tau_words
+
+```
+
+Remember, we are ONLY working with the metals for which we have data from all
+three eras here. Also, we look at the ERL because no metal samples in 2010
+exceeded the ERM values.
+
+The categories are defined as follows:
+*  Never:  Never observed (frequency = 0)  
+*  Rare: < 10%  
+*  Uncommon: < 25%  
+*  Common: <50%  
+*  Frequent > 50%  
+
+```{r}
+tab1 <- metals_data %>%
+  filter(Era == '2010s') %>%
+  group_by(Parameter) %>%
+  summarize(has_ERL = any(! is.na(ERL)),
+            num  = sum(! is.na(Result)),
+            num_exceeds = sum(Result > ERL, na.rm = TRUE),
+            pct_exceeds = round(num_exceeds/num,3)*100,
+            labs = cut(pct_exceeds,
+                       c(-0.1, 0.1, 10,25, 50, 110),
+                       labels = c('Never',
+                                      'Rare',
+                                      'Uncommon',
+                                      'Common',
+                                      'Frequent')),
+            `Exceeds ERL†` = if_else(has_ERL, as.character(labs), 'No ERL')) %>%
+  select(-has_ERL, -num, -num_exceeds, -pct_exceeds, -labs)
+tab1
+```
+Now, we want to do something similar, adding a columns indicating the direction
+of any SIGNIFICANT slope estimates to the table.  We already worked these out
+based on the linear regression models, above.
+
+Here's the code, slightly modified, to avoid a long-distance dependency in the
+R Notebook that could prove confusing.
+
+```{r}
+is_sign   <- unlist(lapply(mods$rlm,function(m) summary(m)$coefficients[2,4] < 0.025))
+decreasing <- unlist(lapply(mods$rlm,function(m) coefficients(m)[2] < 0))
+
+tab2 <- tibble(Parameter = mods$Parameter,
+               is_sign   = is_sign,
+               is_decreasing = decreasing,
+               'Trend' = if_else(! is_sign, 'No Trend',
+                              if_else(is_decreasing,
+                                      'Decreasing','Increasing'))) %>%
+  select(-is_sign, -is_decreasing)
+```
+
+
+
+
+
+And last, lets identify whether there are significant differences among Regions
+
+
+
+## Region Model
+```{r}
+mods <- mods %>%
+  mutate(region_anova = lapply(data,
+                      function(df) lm(log(Res_ML) ~ Region, data = df)))
+```
+
+Here we pull the p value from the ANOVA table, rather than the summary, because
+we want to an overall test for inequality across all regions.  'summary.lm()` 
+provides an array, but `anova.lm()` produces a data frame, with non-syntactic
+variable names.
+
+See `Metals_Analysis_3.Rmd` for more in-depth look at methods and assumptions.
+```{r} 
+region_p_vals = lapply(mods$region_anova, function(t) anova(t)$`Pr(>F)`[1])
+names(region_p_vals) <- mods$Parameter
+
+(sig_region <- names(region_p_vals[region_p_vals<0.025]))
+
+```
+So almost all metals show differences by region.
+
+### Examine Pairwise Comparisons
+In `Metals_Analysis~3.Rmd`, we used the related `pwpp()` function for a
+graphical depiction of pairwise comparisons.  We skip that here to save space.
+```{r}
+compare <- list()
+for (n in seq_along(mods$Parameter)) {
+  metal <- mods$Parameter[n]
+  compare[[metal]] <- emmeans(mods$region_anova[[n]],
+                              ~ Region, type = 'Response')
+}
+mods$region_emm <- compare
+rm(metal, compare)
+
+for (n in seq_along(mods$Parameter)) {
+  cat('\n---------------------', mods$Parameter[n], '---------------------\n')
+  print(mods$region_emm[[n]])
+}
+```
+
+### Hand-generated comparison text
+We could not figure out an easy way to generate a summary description of the
+pairwise comparisons, so we generated text by hand, and read them into a data
+frame here so we can access them later to construct a table
+```{r}
+tab3 <- tribble(
+~Parameter     , ~`Comparison of Regions`,
+'Arsenic'    , 'Cape Small is low.',
+'Cadmium'    , 'Outer Bay is low;  Cape Small is even lower.',
+'Chromium'   , 'Cape Small is lower than East Bay and West Bay.',
+'Copper'     , 'Outer Bay is low; Cape Small even lower.',
+'Iron'       , 'Cape Small is lower than East Bay and West Bay.',
+'Lead'       , 'Cape Small is low;  Inner Bay is high.',
+'Mercury'    , 'Cape Small < Outer Bay and West Bay < East Bay < Inner Bay',
+'Nickel'     , 'Cape Small is low.',
+'Selenium'   , 'No differences.',
+'Silver'     , 'Cape Small is low; Inner Bay is high.',
+'Zinc'       , 'Cape Small is low. Outer Bay lower than inner Bay.')
+```
+
+```{r}
+tab <- tab1 %>% left_join(tab2)  %>% left_join(tab3) %>%
+  rename(Metal = Parameter)
+```
+
+  
+```{r}
+cap = '† Rare: < 10%; Uncommon: < 25%; Common: <50%, Frequent > 50%'
+knitr::kable(tab, caption = cap)
+```
+
