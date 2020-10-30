@@ -275,10 +275,8 @@ sums_data %>%
 ![](Graphics_Sums_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
-ggsave('figures/threeorganics.pdf', device = cairo_pdf, width = 7, height = 5)
+#ggsave('figures/threeorganics.pdf', device = cairo_pdf, width = 7, height = 5)
 ```
-
-    ## Warning: Removed 163 rows containing missing values (geom_point).
 
 That DDT outlier deserves investigation. It is from a 2001 sample from
 the National Coastal Condition Assessment (NCCA). We checked in the
@@ -325,12 +323,8 @@ sums_data %>%
 ![](Graphics_Sums_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
-ggsave('figures/fourorganics.pdf', device = cairo_pdf, width = 7, height = )
+#ggsave('figures/fourorganics.pdf', device = cairo_pdf, width = 7, height = )
 ```
-
-    ## Saving 7 x 4 in image
-
-    ## Warning: Removed 163 rows containing missing values (geom_point).
 
 ``` r
 sums_data %>%
@@ -358,7 +352,7 @@ sums_data %>%
 ![](Graphics_Sums_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
-ggsave('figures/five_regions.pdf', device = cairo_pdf, width = 7, height = 5)
+ggsave('figures/five_regions_by_Region.pdf', device = cairo_pdf, width = 7, height = 3.5)
 ```
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
@@ -390,10 +384,48 @@ sums_data %>%
 ![](Graphics_Sums_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
-ggsave('figures/five_regions.pdf', device = cairo_pdf, width = 7, height = 3.5)
+ggsave('figures/five_regions_by_parameter.pdf', device = cairo_pdf, width = 7, height = 3.5)
 ```
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
+
+We don’t have sufficient detection to show a similar graphic for just
+the 2010s. The Ramboll study treated non-detects as missing, thus
+biasing estimation of sums, and failing to provide values to graph for
+many observations from recent years, when non-detects were common. We
+have chosen not to recalculate totals, to minimize changes from the
+Ramboll report, but these graphics show why that may be problematic.
+
+``` r
+sums_data %>%
+  filter(Sample_Year  > 2005) %>%
+  ggplot(aes(x = Region, y = Result)) +
+  geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
+  
+  scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
+  scale_color_manual(name = '', values = cbep_colors(), na.value = "firebrick",
+                     labels = c('Below ERL','Between ERL and ERM',
+                                     'Above ERM', "No Reference Defined")) +
+  
+  facet_wrap(~Parameter, ncol = 5) +
+  
+  theme_cbep(base_size = 10) +
+
+  ylab('Concentration (ppb)') +
+  xlab('') +
+  
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
+  theme(legend.position = 'bottom',
+        panel.border = element_rect(fill = NA, size = 0.25))
+```
+
+    ## Warning: Removed 215 rows containing missing values (geom_point).
+
+![](Graphics_Sums_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+#ggsave('figures/five_regions_by_parameter_recent.pdf', device = cairo_pdf, width = 7, height = 3.5)
+```
 
 # Trend Graphics
 
@@ -431,7 +463,7 @@ plt+
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ## Add Only Selected Trendlines
 
@@ -485,7 +517,7 @@ plt + geom_line(aes(Year, predict), data = predicts, lwd = 0.5, lty = 2)
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 ``` r
 ggsave('figures/five_organics_trends.pdf',
