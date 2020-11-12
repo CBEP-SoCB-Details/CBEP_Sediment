@@ -443,7 +443,7 @@ names(b)
 ```
 
 We use code similar to what we used above to extract p values for all models.
-WE get th esame metals showing significant patterns regardless of which test
+We get the same metals showing significant patterns regardless of which test
 we use, which increases confidence in the general results.
 ```{r} 
 region_p_vals = lapply(mods$region_anova, function(t) anova(t)$`Pr(>F)`[1])
