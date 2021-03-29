@@ -484,7 +484,7 @@ plt+
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/trent_plot_base-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/trend_plot_base-1.png)<!-- -->
 
 ## Add Only Selected Trendlines
 

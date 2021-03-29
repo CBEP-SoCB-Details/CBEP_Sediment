@@ -360,7 +360,7 @@ sums_data %>%
 ```
 
 # Trend Graphics
-```{r trent_plot_base, fig.width = 7, fig.height = 3.5}
+```{r trend_plot_base, fig.width = 7, fig.height = 3.5}
 plt <- sums_data %>%
   ggplot(aes(x = Sample_Year, y = Result)) +
   geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
