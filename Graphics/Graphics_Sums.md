@@ -239,7 +239,7 @@ sums_data %>%
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/prelim_graphic-1.png)<!-- -->
 
 ``` r
 sums_data %>%
@@ -255,7 +255,7 @@ sums_data %>%
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/prelimi_graphic_wide-1.png)<!-- -->
 
 # Regional Graphics
 
@@ -292,7 +292,7 @@ sums_data %>%
 
     ## Warning: Removed 163 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/three_organics_graphic-1.png)<!-- -->
 
 ``` r
 #ggsave('figures/threeorganics.pdf', device = cairo_pdf, width = 7, height = 5)
@@ -340,7 +340,7 @@ sums_data %>%
 
     ## Warning: Removed 163 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/four_organics_graphics-1.png)<!-- -->
 
 ``` r
 #ggsave('figures/fourorganics.pdf', device = cairo_pdf, width = 7, height = )
@@ -369,10 +369,11 @@ sums_data %>%
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/five_regions-1.png)<!-- -->
 
 ``` r
-ggsave('figures/five_regions_by_Region.pdf', device = cairo_pdf, width = 7, height = 3.5)
+ggsave('figures/five_regions_by_Region.pdf', device = cairo_pdf,
+       width = 7, height = 3.5)
 ```
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
@@ -401,7 +402,7 @@ sums_data %>%
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/five_regions_by_parm-1.png)<!-- -->
 
 ``` r
 ggsave('figures/five_regions_by_parameter.pdf', device = cairo_pdf, width = 7, height = 3.5)
@@ -441,7 +442,7 @@ sums_data %>%
 
     ## Warning: Removed 215 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/five_region_by_parm_recent-1.png)<!-- -->
 
 ``` r
 #ggsave('figures/five_regions_by_parameter_recent.pdf', device = cairo_pdf, width = 7, height = 3.5)
@@ -483,7 +484,7 @@ plt+
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/trent_plot_base-1.png)<!-- -->
 
 ## Add Only Selected Trendlines
 
@@ -537,7 +538,7 @@ plt + geom_line(aes(Year, predict), data = predicts, lwd = 0.5, lty = 2)
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/trend_graphic_final-1.png)<!-- -->
 
 ``` r
 ggsave('figures/five_organics_trends.pdf',

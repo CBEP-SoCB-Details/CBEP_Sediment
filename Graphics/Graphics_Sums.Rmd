@@ -106,7 +106,7 @@ compound by its relative toxic effect, compared to some reference compound
 (conventionally TCDD).
 
 ### Change Factor Levels
-```{r}
+```{r change_factor_levels}
 sums_data <- sums_data %>%
 
   mutate(Parameter = factor(Parameter,
@@ -141,7 +141,7 @@ sums_data <- sums_data %>%
 ### Delete Unused Parameters
 To simplify presentation for State of Casco Bay, we will not report all totals.
 we remove unused data here.
-```{r}
+```{r unused_parms}
 sums_data <- sums_data %>%
   filter(! Parameter %in% c("Chlordanes", "High MW PAHs",
                             "Low MW PAHs", "Pesticides")) %>%
@@ -155,7 +155,7 @@ sums_data <- sums_data %>%
 ```
 
 ### Reexpress Dioxins and Furans in PPT
-```{r}
+```{r rescale_to_ppt}
 sums_data <- sums_data %>%
   mutate(Result = if_else(Parameter == "Dioxins and Furans",
                           Result/1000,
@@ -174,7 +174,7 @@ on a luminance scale.
 We follow the reviewer's suggestion, and create a color scale for these
 graphics.
 
-```{r}
+```{r define_colors}
 # First line is not necessary, but we like to keep color formats consistent....
 fb <- rgb(t(col2rgb('firebrick')), maxColorValue = 255)
 tox_colors <- c(cbep_colors()[1:2], fb)
@@ -183,7 +183,7 @@ rm(fb)
 ```
 
 #  Preliminary Graphics
-```{r}
+```{r prelim_graphic}
 sums_data %>%
   ggplot(aes(x = Era, y = Result, color = LVL)) +
   geom_jitter() +
@@ -193,7 +193,7 @@ sums_data %>%
               labels = scales::trans_format("log10", scales::math_format(10^.x)))
 ```
 
-```{r fig.width = 7, fig.height = 5}
+```{r prelimi_graphic_wide, fig.width = 7, fig.height = 5}
 sums_data %>%
   ggplot(aes(x = Region, y = Result, color = LVL)) +
   geom_jitter() +
@@ -211,7 +211,7 @@ we should focus on "Total PAHs", "Total PCBs", and "DDT Residues".  It's not
 obvious whether we shoul prepare panels by region or by parameter, so we try
 both.
 
-```{r fig.width = 7, fig.height = 5}
+```{r three_organics_graphic, fig.width = 7, fig.height = 5}
 sums_data %>%
   filter(Parameter %in%
            c("Total PAHs", "Total PCBs", "DDT Residues")) %>%
@@ -250,7 +250,7 @@ of agricultural use, and it is not unlikely that runoff from the region's
 abandoned or active agricultural lands might carry excess DDT residues compared
 to other Casco Bay locations.  We believe these data are correct, both regarding
 magnitude and location. 
-```{r fig.width = 7, fig.height = 4}
+```{r four_organics_graphics, fig.width = 7, fig.height = 4}
 sums_data %>%
   filter(Parameter %in%
            c("Total PAHs", "Total PCBs", "DDT Residues",
@@ -281,7 +281,7 @@ sums_data %>%
 
 ```
 
-```{r}
+```{r five_regions, fig.width = 7, fig.height = 3.5}
 sums_data %>%
   ggplot(aes(x = Parameter, y = Result)) +
   geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
@@ -300,10 +300,11 @@ sums_data %>%
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
   theme(legend.position = 'bottom',
         panel.border = element_rect(fill = NA, size = 0.25))
-ggsave('figures/five_regions_by_Region.pdf', device = cairo_pdf, width = 7, height = 3.5)
+ggsave('figures/five_regions_by_Region.pdf', device = cairo_pdf,
+       width = 7, height = 3.5)
 ```
 
-```{r fig.width = 7, fig.height = 3.5}
+```{r five_regions_by_parm, fig.width = 7, fig.height = 3.5}
 sums_data %>%
   ggplot(aes(x = Region, y = Result)) +
   geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
@@ -333,7 +334,7 @@ of sums, and failing to provide values to graph for many observations from
 recent years, when non-detects were common.  We have chosen not to recalculate
 totals, to minimize changes from the Ramboll report, but these graphics show why
 that may be problematic.
-```{r fig.width = 7, fig.height = 3.5}
+```{r five_region_by_parm_recent, fig.width = 7, fig.height = 3.5}
 sums_data %>%
   filter(Sample_Year  > 2005) %>%
   ggplot(aes(x = Region, y = Result)) +
@@ -359,7 +360,7 @@ sums_data %>%
 ```
 
 # Trend Graphics
-```{r fig.width = 7, fig.height = 3.5}
+```{r trent_plot_base, fig.width = 7, fig.height = 3.5}
 plt <- sums_data %>%
   ggplot(aes(x = Sample_Year, y = Result)) +
   geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
@@ -401,7 +402,7 @@ linear models, extract coefficients (or predictions), calculate predictions,
 and plot.
 
 ## Calculate Regression Line Points
-```{r}
+```{r calc_regression_lines}
   slope_and_intercept <- sums_data %>%
   
   # Remove DDT data, for wich we want no line
@@ -422,7 +423,7 @@ and plot.
   ungroup(Parameter)
 ```
 
-```{r}
+```{r build_predicts}
 predicts <- slope_and_intercept %>%
   # add upper and lower limits for regression lines
   mutate(lwr = 1990, upr = if_else(Parameter == "Total PCBs", 2002, 2011)) %>%
@@ -431,7 +432,7 @@ predicts <- slope_and_intercept %>%
   mutate(predict = exp(intercept + slope * Year))
 ```
 
-```{r fig.width = 7, fig.height = 3.5}
+```{r trend_graphic_final, fig.width = 7, fig.height = 3.5}
 plt + geom_line(aes(Year, predict), data = predicts, lwd = 0.5, lty = 2)
 ggsave('figures/five_organics_trends.pdf',
        device = cairo_pdf, width = 7, height = 3.5)
