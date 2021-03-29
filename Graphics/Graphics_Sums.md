@@ -3,21 +3,22 @@ Graphics Based on Selected Sums and Totals of Contaminants
 Curtis C. Bohlen, Casco Bay Estuary Partnership
 Revised October 19, 2020
 
-  - [Introduction](#introduction)
-  - [Load Libraries](#load-libraries)
-  - [Load Data](#load-data)
-      - [Folder References](#folder-references)
-      - [Sums Data](#sums-data)
-          - [Sums Data Caveates](#sums-data-caveates)
-          - [Change Factor Levels](#change-factor-levels)
-          - [Delete Unused Parameters](#delete-unused-parameters)
-          - [Reexpress Dioxins and Furans in
+-   [Introduction](#introduction)
+-   [Load Libraries](#load-libraries)
+-   [Load Data](#load-data)
+    -   [Folder References](#folder-references)
+    -   [Sums Data](#sums-data)
+        -   [Sums Data Caveates](#sums-data-caveates)
+        -   [Change Factor Levels](#change-factor-levels)
+        -   [Delete Unused Parameters](#delete-unused-parameters)
+        -   [Reexpress Dioxins and Furans in
             PPT](#reexpress-dioxins-and-furans-in-ppt)
-  - [Preliminary Graphics](#preliminary-graphics)
-  - [Regional Graphics](#regional-graphics)
-  - [Trend Graphics](#trend-graphics)
-      - [Add Only Selected Trendlines](#add-only-selected-trendlines)
-      - [Calculate Regression line
+-   [Define Color Scale](#define-color-scale)
+-   [Preliminary Graphics](#preliminary-graphics)
+-   [Regional Graphics](#regional-graphics)
+-   [Trend Graphics](#trend-graphics)
+    -   [Add Only Selected Trendlines](#add-only-selected-trendlines)
+    -   [Calculate Regression Line
         Points](#calculate-regression-line-points)
 
 <img
@@ -38,22 +39,20 @@ Chemicals studied included metals, polycyclic aromatic hydrocarbons
 dioxins and furans, and organotins. These contaminants are all
 persistent in the marine environment.
 
-IN this
-
 # Load Libraries
 
 ``` r
 library(tidyverse)
 ```
 
-    ## -- Attaching packages --------------------------------------------------------------------------------------- tidyverse 1.3.0 --
+    ## -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
 
-    ## v ggplot2 3.3.2     v purrr   0.3.4
-    ## v tibble  3.0.3     v dplyr   1.0.2
+    ## v ggplot2 3.3.3     v purrr   0.3.4
+    ## v tibble  3.0.5     v dplyr   1.0.3
     ## v tidyr   1.1.2     v stringr 1.4.0
-    ## v readr   1.3.1     v forcats 0.5.0
+    ## v readr   1.4.0     v forcats 0.5.0
 
-    ## -- Conflicts ------------------------------------------------------------------------------------------ tidyverse_conflicts() --
+    ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -132,7 +131,7 @@ PCBs, and Butyltins in 2010 and 2011. Effectively, we have no data on
 PCBs and Pesticides, and very little data on Butyltins from 2010 and
 2011.
 
-Ramboll Standardized units in the Access database, so, most sums are
+Ramboll standardized units in the Access database, so, most sums are
 expressed in ng/g dry weight (\~ ppb). The Dioxins and Furans are
 expressed in ng/kg, or pg/g or approximately parts per trillion. To
 simplify graphics, we re-express the Dioxin and Furan values in PPT,
@@ -205,6 +204,27 @@ sums_data <- sums_data %>%
                           Result))
 ```
 
+# Define Color Scale
+
+One reviewer pointed to possible confusion because of use of red as a
+color for NA values, with a gray as one of our scale colors. That came
+from use of our `cbep_colors()` color function. They suggested reversing
+those color choices. Another alternative would be to use a portion of
+our `cbep_colors2()` function’s sequential color range. But the latter
+choice is complicated, as the sequential colors are sometimes fairly
+similar, despite being spread out on a luminance scale.
+
+We follow the reviewer’s suggestion, and create a color scale for these
+graphics.
+
+``` r
+# First line is not necessary, but we like to keep color formats consistent....
+fb <- rgb(t(col2rgb('firebrick')), maxColorValue = 255)
+tox_colors <- c(cbep_colors()[1:2], fb)
+na_color <- cbep_colors()[3]
+rm(fb)
+```
+
 # Preliminary Graphics
 
 ``` r
@@ -219,7 +239,7 @@ sums_data %>%
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 sums_data %>%
@@ -235,14 +255,14 @@ sums_data %>%
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 # Regional Graphics
 
 To make graphics comparable to the ones produced for the Portland Harbor
 Toxics, we should focus on “Total PAHs”, “Total PCBs”, and “DDT
-Residues”. It’s not obvious whether we shoul prepare panels by region
-or by parameter, so we try both.
+Residues”. It’s not obvious whether we shoul prepare panels by region or
+by parameter, so we try both.
 
 ``` r
 sums_data %>%
@@ -256,7 +276,7 @@ sums_data %>%
   geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
-  scale_color_manual(name = '', values = cbep_colors(), na.value = "firebrick",
+  scale_color_manual(name = '', values = tox_colors, na.value = na_color,
                      labels = c('Below ERL','Between ERL and ERM',
                                      'Above ERM', "No Reference Defined")) +
   
@@ -272,7 +292,7 @@ sums_data %>%
 
     ## Warning: Removed 163 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 #ggsave('figures/threeorganics.pdf', device = cairo_pdf, width = 7, height = 5)
@@ -304,7 +324,7 @@ sums_data %>%
   geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
-  scale_color_manual(name = '', values = cbep_colors(), na.value = "firebrick",
+  scale_color_manual(name = '', values = tox_colors, na.value = na_color,
                      labels = c('Below ERL','Between ERL and ERM',
                                      'Above ERM', "No Reference Defined")) +
   
@@ -320,7 +340,7 @@ sums_data %>%
 
     ## Warning: Removed 163 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 #ggsave('figures/fourorganics.pdf', device = cairo_pdf, width = 7, height = )
@@ -332,7 +352,7 @@ sums_data %>%
   geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
-  scale_color_manual(name = '', values = cbep_colors(), na.value = "firebrick",
+  scale_color_manual(name = '', values = tox_colors, na.value = na_color,
                      labels = c('Below ERL','Between ERL and ERM',
                                      'Above ERM', "No Reference Defined")) +
   
@@ -349,7 +369,7 @@ sums_data %>%
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
 ggsave('figures/five_regions_by_Region.pdf', device = cairo_pdf, width = 7, height = 3.5)
@@ -363,7 +383,7 @@ sums_data %>%
   geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
-  scale_color_manual(name = '', values = cbep_colors(), na.value = "firebrick",
+  scale_color_manual(name = '', values = tox_colors, na.value = na_color,
                      labels = c('Below ERL','Between ERL and ERM',
                                      'Above ERM', "No Reference Defined")) +
   
@@ -381,7 +401,7 @@ sums_data %>%
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
 ggsave('figures/five_regions_by_parameter.pdf', device = cairo_pdf, width = 7, height = 3.5)
@@ -389,7 +409,7 @@ ggsave('figures/five_regions_by_parameter.pdf', device = cairo_pdf, width = 7, h
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-We don’t have sufficient detection to show a similar graphic for just
+We don’t have sufficient detections to show a similar graphic for just
 the 2010s. The Ramboll study treated non-detects as missing, thus
 biasing estimation of sums, and failing to provide values to graph for
 many observations from recent years, when non-detects were common. We
@@ -403,7 +423,7 @@ sums_data %>%
   geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
-  scale_color_manual(name = '', values = cbep_colors(), na.value = "firebrick",
+  scale_color_manual(name = '', values = tox_colors, na.value = na_color,
                      labels = c('Below ERL','Between ERL and ERM',
                                      'Above ERM', "No Reference Defined")) +
   
@@ -421,7 +441,7 @@ sums_data %>%
 
     ## Warning: Removed 215 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 #ggsave('figures/five_regions_by_parameter_recent.pdf', device = cairo_pdf, width = 7, height = 3.5)
@@ -437,7 +457,7 @@ plt <- sums_data %>%
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
   scale_x_continuous(breaks = c(1990, 2000, 2010)) +
-  scale_color_manual(name = '', values = cbep_colors(), na.value = "firebrick",
+  scale_color_manual(name = '', values = tox_colors, na.value = na_color,
                      labels = c('Below ERL','Between ERL and ERM',
                                      'Above ERM', "No Reference Defined")) +
   
@@ -463,7 +483,7 @@ plt+
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ## Add Only Selected Trendlines
 
@@ -479,7 +499,7 @@ We can build a dataframe to control where lines are drawn as follows. We
 run linear models, extract coefficients (or predictions), calculate
 predictions, and plot.
 
-## Calculate Regression line Points
+## Calculate Regression Line Points
 
 ``` r
   slope_and_intercept <- sums_data %>%
@@ -517,7 +537,7 @@ plt + geom_line(aes(Year, predict), data = predicts, lwd = 0.5, lty = 2)
 
     ## Warning: Removed 230 rows containing missing values (geom_point).
 
-![](Graphics_Sums_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](Graphics_Sums_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 ggsave('figures/five_organics_trends.pdf',

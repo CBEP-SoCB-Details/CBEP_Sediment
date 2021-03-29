@@ -24,8 +24,6 @@ polychlorinated biphenyls (PCBs), organochlorine pesticides, dioxins and furans,
 and organotins.  These contaminants are all persistent in the marine
 environment.
 
-IN this 
-
 # Load Libraries
 ```{r load_libraries}
 library(tidyverse)
@@ -74,7 +72,6 @@ sums_data <- read_csv(file.path(niece,fn),
   mutate(Replicate = Replicate == -1)
 ```
 
-
 ### Sums Data Caveates
 See the "Review_Data.Rmd" and "Review_Sums_Data.Rmd" files for details.
 
@@ -97,7 +94,7 @@ limits. This is especially  problem for data on Pesticides, PCBs, and Butyltins
 in 2010 and 2011.  Effectively, we have no data on PCBs and Pesticides, and very
 little data on Butyltins from 2010 and 2011.
 
-Ramboll Standardized units in the Access database, so, most sums are expressed
+Ramboll standardized units in the Access database, so, most sums are expressed
 in ng/g dry weight (~ ppb). The Dioxins and Furans are expressed in ng/kg, or
 pg/g or approximately parts per trillion.  To simplify graphics, we re-express
 the Dioxin and Furan values in PPT, below.  
@@ -107,7 +104,6 @@ them in TEQ -- Tox equivalents.  Toxic equivalents provide a way to estimate the
 cumulative toxic effect of a mixture of related chemicals by weighting each
 compound by its relative toxic effect, compared to some reference compound
 (conventionally TCDD).
-
 
 ### Change Factor Levels
 ```{r}
@@ -166,7 +162,25 @@ sums_data <- sums_data %>%
                           Result))
 ```
 
+# Define Color Scale
+One reviewer pointed to possible confusion because of use of red as a color
+for NA values, with a gray as one of our scale colors.  That came from use of
+our `cbep_colors()` color function.  They suggested reversing those color
+choices.  Another alternative would be to use a portion of our `cbep_colors2()`
+function's sequential color range.  But the latter choice is complicated, as the
+sequential colors are sometimes fairly similar, despite being spread out
+on a luminance scale.
 
+We follow the reviewer's suggestion, and create a color scale for these
+graphics.
+
+```{r}
+# First line is not necessary, but we like to keep color formats consistent....
+fb <- rgb(t(col2rgb('firebrick')), maxColorValue = 255)
+tox_colors <- c(cbep_colors()[1:2], fb)
+na_color <- cbep_colors()[3]
+rm(fb)
+```
 
 #  Preliminary Graphics
 ```{r}
@@ -178,7 +192,6 @@ sums_data %>%
   scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 100^x),
               labels = scales::trans_format("log10", scales::math_format(10^.x)))
 ```
-
 
 ```{r fig.width = 7, fig.height = 5}
 sums_data %>%
@@ -210,7 +223,7 @@ sums_data %>%
   geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
-  scale_color_manual(name = '', values = cbep_colors(), na.value = "firebrick",
+  scale_color_manual(name = '', values = tox_colors, na.value = na_color,
                      labels = c('Below ERL','Between ERL and ERM',
                                      'Above ERM', "No Reference Defined")) +
   
@@ -226,6 +239,7 @@ sums_data %>%
 #ggsave('figures/threeorganics.pdf', device = cairo_pdf, width = 7, height = 5)
 
 ```
+
 That DDT outlier deserves investigation.  It is from a 2001 sample from the
 National Coastal Condition Assessment (NCCA).  We checked in the on-line data
 for the NCCA, and confirmed that the value shown here is correct, despite being
@@ -235,8 +249,7 @@ Elizabeth, on the edge of Pond Cove.  Portions of Cape Elizabeth have a history
 of agricultural use, and it is not unlikely that runoff from the region's
 abandoned or active agricultural lands might carry excess DDT residues compared
 to other Casco Bay locations.  We believe these data are correct, both regarding
-magnitude and location.
-
+magnitude and location. 
 ```{r fig.width = 7, fig.height = 4}
 sums_data %>%
   filter(Parameter %in%
@@ -251,7 +264,7 @@ sums_data %>%
   geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
-  scale_color_manual(name = '', values = cbep_colors(), na.value = "firebrick",
+  scale_color_manual(name = '', values = tox_colors, na.value = na_color,
                      labels = c('Below ERL','Between ERL and ERM',
                                      'Above ERM', "No Reference Defined")) +
   
@@ -268,16 +281,13 @@ sums_data %>%
 
 ```
 
-
-
-
 ```{r}
 sums_data %>%
   ggplot(aes(x = Parameter, y = Result)) +
   geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
-  scale_color_manual(name = '', values = cbep_colors(), na.value = "firebrick",
+  scale_color_manual(name = '', values = tox_colors, na.value = na_color,
                      labels = c('Below ERL','Between ERL and ERM',
                                      'Above ERM', "No Reference Defined")) +
   
@@ -299,7 +309,7 @@ sums_data %>%
   geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
-  scale_color_manual(name = '', values = cbep_colors(), na.value = "firebrick",
+  scale_color_manual(name = '', values = tox_colors, na.value = na_color,
                      labels = c('Below ERL','Between ERL and ERM',
                                      'Above ERM', "No Reference Defined")) +
   
@@ -316,12 +326,13 @@ sums_data %>%
 
 ggsave('figures/five_regions_by_parameter.pdf', device = cairo_pdf, width = 7, height = 3.5)
 ```
-We don't have sufficient detection to show a similar graphic for just the 2010s.
-The Ramboll study treated non-detects as missing, thus biasing estimation of
-sums, and failing to provide values to graph for many observations from recent
-years, when non-detects were common.  We have chosen not to recalculate totals,
-to minimize changes from the Ramboll report, but these graphics show why that
-may be problematic.
+
+We don't have sufficient detections to show a similar graphic for just the
+2010s. The Ramboll study treated non-detects as missing, thus biasing estimation
+of sums, and failing to provide values to graph for many observations from
+recent years, when non-detects were common.  We have chosen not to recalculate
+totals, to minimize changes from the Ramboll report, but these graphics show why
+that may be problematic.
 ```{r fig.width = 7, fig.height = 3.5}
 sums_data %>%
   filter(Sample_Year  > 2005) %>%
@@ -329,7 +340,7 @@ sums_data %>%
   geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
-  scale_color_manual(name = '', values = cbep_colors(), na.value = "firebrick",
+  scale_color_manual(name = '', values = tox_colors, na.value = na_color,
                      labels = c('Below ERL','Between ERL and ERM',
                                      'Above ERM', "No Reference Defined")) +
   
@@ -347,7 +358,6 @@ sums_data %>%
 #ggsave('figures/five_regions_by_parameter_recent.pdf', device = cairo_pdf, width = 7, height = 3.5)
 ```
 
-
 # Trend Graphics
 ```{r fig.width = 7, fig.height = 3.5}
 plt <- sums_data %>%
@@ -357,7 +367,7 @@ plt <- sums_data %>%
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
   scale_x_continuous(breaks = c(1990, 2000, 2010)) +
-  scale_color_manual(name = '', values = cbep_colors(), na.value = "firebrick",
+  scale_color_manual(name = '', values = tox_colors, na.value = na_color,
                      labels = c('Below ERL','Between ERL and ERM',
                                      'Above ERM', "No Reference Defined")) +
   
@@ -390,7 +400,7 @@ We can build a dataframe to control where lines are drawn as follows.  We run
 linear models, extract coefficients (or predictions), calculate predictions,
 and plot.
 
-## Calculate Regression line Points
+## Calculate Regression Line Points
 ```{r}
   slope_and_intercept <- sums_data %>%
   
