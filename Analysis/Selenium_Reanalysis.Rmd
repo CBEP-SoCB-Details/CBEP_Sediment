@@ -1,0 +1,458 @@
+---
+title: "Trend Analysis for Metals"
+author: "Curtis C. Bohlen, Casco Bay Estuary Partnership"
+date:  "March 29, 2021"
+output:
+  github_document:
+    toc: true
+    fig_width: 5
+    fig_height: 4
+---
+<img
+    src="https://www.cascobayestuary.org/wp-content/uploads/2014/04/logo_sm.jpg"
+    style="position:absolute;top:10px;right:50px;" />
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.align = 'center',
+                      fig.width = 5, fig.height = 4,
+                      collapse = TRUE, comment = "#>")
+```
+
+
+# Introduction
+Casco Bay Estuary Partnership collected sediment samples in 1991, 1994, 2000,
+2001, 2002, 2010, and 2011 to look at concentrations of toxic contaminants in
+Casco Bay surface Sediments. These studies were complemented by data collected
+by under the auspices of EPA's the National Coastal Assessment (NCA) and 
+National Coastal Condition Assessment (NCCA).
+
+Chemicals studied included metals. Here we analyze long-term trends in Selenium.
+
+Lauren Brown, from Ramboll Scientific was kind enough to review a draft of the
+Toxics chapter for State of Casco Bay.  
+
+She questioned some of our conclusions about selenium, which differed from what 
+Ramboll reported.  Here, we reanalyze the Selenium data to
+clarify what we and Ramboll found.
+
+Our guess is that differences reflect different analytic choices, but it would be
+good to confirm what is going on.
+
+
+The comments from Brown in her review was as follows:
+
+1. Double check selenium trend. 2010/11 concentrations appear higher than the
+   two previous sampling events. From the Ramboll report:
+
+>  For selenium, the significantly higher concentrations in the 2010–2011 data
+   are due to higher concentrations    reported in four of the five regions, but
+   most notably in West Bay and East Bay (Appendix A, Figure A-37). Minimum
+   detected selenium concentrations are similar in all three sampling events,
+   less than 0.08 µg/g in all cases, but the maximum concentration in the
+   2010-2011 data exceeds those from the previous sampling by a factor of nearly
+   three (e.g., 1.1 µg/g and 1.2 µg/g in 1991/1994 and 2000–2002, respectively,
+   and 2.9 µg/g in 2010–2011) . Although this same trend was not apparent for
+   most metals in this dataset, the apparent increase in selenium concentrations
+   is confounded by differences in analytical methods.   Therefore, it is
+   possible that the differences among sampling periods could be due to
+   differences in efficiencies between the different analytical methods used in
+   each round of sampling or they could represent significantly higher
+   concentrations of selenium throughout much of Casco Bay, particularly in the
+   East Bay.
+
+2.  Double check selenium regions. I think Cape Small is low and East Bay is
+    high based on Ramboll report. (Showing graphic).
+    
+Note that a key difference between Ramboll's analysis and ours is the handling
+of non-detects.  Ramboll dropped non-detects from consideration.  In our primary
+analysis we used a maximum likelihood method to estimate the expected value of 
+the (unobserved) non-detects, based on some distributional assumptions 
+(specifically,that the data are distributed approximately lognormal).  Here we 
+make a more conservative assumption, and replace the non-detects with their 
+detection limits.
+
+The core finding is that our conclusions depend on whether we include 
+non-detects in the analysis or not.  Non-detects were common in 2010 and 2011.
+Ramboll's decision to omit them biased their statistical analysis.  But more 
+importantly, data from the 2010s looks qualitatively different from  earlier
+data in ways that suggest changes in laboratory practices are probably 
+important.  In effect, analysis of the 2010 era Selenium data may not be a good
+idea.
+
+Throughout the following, we reprise our core statistical analyses on the 
+selenium data, repeating all analyses both omitting the non-detects, and
+including them at the detection limits.
+# Load Libraries
+```{r load_libraries}
+library(tidyverse)
+library(readxl)
+
+library(mblm)
+library(nlme)
+library(emmeans)
+
+library(CBEPgraphics)
+load_cbep_fonts()
+theme_set(theme_cbep())
+
+library(LCensMeans)
+```
+
+# Load Data
+## Folder References
+```{r folder_refs}
+sibfldnm <- 'Derived_Data'
+parent   <- dirname(getwd())
+sibling  <- file.path(parent,sibfldnm)
+niecefldnm <- 'Data_Subsets'
+niece <- file.path(sibling,niecefldnm)
+fn <- "metals.csv"
+
+```
+
+## Metals Data
+```{r load_metals_data}
+metals_data <- read_csv(file.path(niece,fn),
+                      col_types = cols(.default = col_character(),
+                                        Sample_Year = col_double(),
+                                        Replicate = col_integer(),
+                                        CASRN = col_skip(),
+                                        Result = col_double(),
+                                        MDL = col_double(),
+                                        RL = col_double(),
+                                        Det_Flag = col_integer(),
+                                        Qualifier = col_skip(),
+                                        `QA Qualifier` = col_skip(),
+                                        Reportable_Result = col_skip(),
+                                        ERL = col_double(),
+                                        ERM = col_double() )
+                      ) %>%
+  mutate(Replicate = Replicate == -1) %>%
+  mutate(Det_Flag = Det_Flag == 1) %>%
+  mutate(nd_flag = ! Det_Flag) %>%
+  mutate(Parameter = if_else(Parameter == "Chromium (total)",
+                             "Chromium",
+                             Parameter))
+```
+
+### Units
+See the "Review_Data.Rmd" for details.
+
+Ramboll Standardized units in the Access database, so, concentrations of metals
+are expressed in $\mu g/g$ dry weight (~ ppm).
+
+## Change Factor Levels
+```{r}
+metals_data <- metals_data %>%
+  mutate(LVL = factor(LVL, levels = c('Below ERL','Between ERL and ERM',
+                                     'Above ERM'))) %>%
+  mutate(Region = factor(Region, levels = c("Inner Bay",
+                                            "West Bay",
+                                            "East Bay",
+                                            "Outer Bay",
+                                            "Cape Small"))) %>%
+  mutate(Era = ordered(Era, levels = c( "1990s", "2000s", "2010s" )))
+```
+
+## Select Selenium Data
+```{r}
+metals_data <- metals_data %>%
+  filter(Parameter == 'Selenium') %>%
+  select(-Parameter)
+```
+
+## Replace Non-detects with Detection Limits
+```{r}
+metals_data <- metals_data %>%
+  mutate(nd_to_dl = if_else(nd_flag, MDL, Result))
+```
+
+
+# Plot  Selenium 
+## Without Non-detects
+```{r trend_graph_wo_nd}
+metals_data %>%
+  ggplot(aes(Sample_Year, Result)) +
+  geom_jitter(aes(color = Det_Flag), width = 0.1, alpha = 0.3) +
+  geom_smooth(method = 'lm') +
+  scale_color_manual(values = cbep_colors()[2:3]) +
+  scale_y_log10() +
+  theme(axis.text.x = element_text(angle = 45))
+```
+
+## With the Non Detects
+```{r trend_graph}
+metals_data %>%
+  ggplot(aes(Sample_Year, nd_to_dl)) +
+  geom_jitter(aes(color = Det_Flag), width = 0.1, alpha = 0.3) +
+  geom_smooth(method = 'lm') +
+  scale_color_manual(values = cbep_colors()[2:3]) +
+  scale_y_log10() +
+  theme(axis.text.x = element_text(angle = 45))
+```
+Non-detects only occurred in the 2010s era, and they have a large effect on the
+slope of the trend over time.  
+
+So what is clear any trend in selenium depends on how one handles the 
+non-detects.  Omitting the non-detects generates an nominal INCREASE in
+concentrations.  Including them at the method detection limit (shown) or at the 
+maximum likelihood estimator (preferred, but not shown) results in finding 
+a nominal DECREASE.
+
+```{r era_box_wo_nd}
+metals_data %>%
+  ggplot(aes(y = Result, x = Era)) +
+  geom_boxplot() +
+  scale_y_log10()
+  
+```
+```{r era_box}
+metals_data %>%
+  ggplot(aes(y = nd_to_dl, x = Era)) +
+  geom_boxplot() +
+  scale_y_log10()
+  
+```
+
+So what we see is that a simple regression or anova will, again, see very 
+different results depending on how you handle non-detects.  This, obviously,
+does not generate great confidence in the results.  Also, we end up with a 
+serious problem with inhomogeneity of variances....
+
+```{r region_jitter_wo_nd}
+metals_data %>%
+  ggplot(aes(y = Result, x = Region, color = Era)) +
+  geom_jitter(width = .3, height = 0) +
+  scale_y_log10()
+  
+```
+
+```{r region_jitter}
+metals_data %>%
+ ggplot(aes(y = nd_to_dl, x = Region, color = Era)) +
+  geom_jitter(width = .3, height = 0) +
+  scale_y_log10()
+  
+```
+The 2010s era data stands out as quite different, with both many higher 
+observations and many more non-detects.
+
+# Linear Regression
+On log-transformed data.
+
+## Without the Non Detects
+```{r}
+lr_mod_no_ND = lm(log(Result) ~ Sample_Year, data = metals_data)
+anova(lr_mod_no_ND)
+summary(lr_mod_no_ND)
+```
+
+That shows a statistically significant increase in concentrations over time.
+
+## With the Non Detects
+Let's look at a regression where the non-detects are included in the model at
+the detection limit.
+```{r}
+lr_mod = lm(log(nd_to_dl) ~ Sample_Year, data = metals_data)
+anova(lr_mod)
+summary(lr_mod)
+```
+That shows a statistically significant decrease over time.
+
+## Model Diagnostic Plots
+```{r diagnostics}
+oldpar <- par()
+par(mfrow = c(2,2))
+plot(lr_mod)
+par(oldpar)
+```
+
+The model diagnostic plots are not great.  We have a cluster of points  at the
+detection limits, and clear increase in variance for the lowest predicted values 
+-- those from 2010 in this model.
+
+# Robust Regression
+We can conduct a robust regression, based on Theil-Sen slope estimators, or
+(nearly equivalently) Kendall's Tau.
+
+We could not get the following to work inside a pipe or `lapply()` call, so we
+fell back on using a loop.  Also, `mblm()` does not like having a log transform
+in the model formula, so we had to move the log transform outside the call.
+## Without the Non Detects
+```{r}
+tmp <- metals_data %>%
+    mutate(logres = log(Result)) %>%
+  filter(! is.na(logres))
+
+rlm_no_ND <- mblm(logres ~ Sample_Year, data = tmp)
+summary(rlm_no_ND)
+```
+
+## With the Non Detects
+```{r}
+tmp <- metals_data %>%
+    mutate(logval = log(nd_to_dl)) %>%
+  filter(! is.na(logval))
+rlm <- mblm(logval ~ Sample_Year, data = tmp)
+rm(tmp)
+summary(rlm)
+```
+
+So we see the same relationship, even with a resistant regression.  The 
+conclusion depends on how you handle the non-detects.
+
+# ANOVA (Ordered Factor) Analysis 
+## Era Model
+We can implement a similar model, fitting Eras instead of Sample_Years, by
+fitting an ordered factor.  The default coding for an ordered factor splits the
+fit into linear and quadratic terms, which here is appropriate. One should be
+aware, however, that the coding with only three levels of an ordered factor
+contrasts the first and third levels, effectively ignoring the intermediate one.
+Whether you consider that a feature or a bug, will depend on your perspective.
+Under a similar linear model, deviations from linear trend become part of the 
+error term.  Here, it is fit as part of the quadratic term.
+
+Our focus is on saying whether there are long term trends, so we are principally
+interested in the linear term. 
+
+```{r}
+era_anova_no_ND = lm(log(Result) ~ Era, data = metals_data)
+summary(era_anova_no_ND)
+```
+
+### With the Non Detects
+```{r}
+era_anova = lm(log(nd_to_dl) ~ Era, data = metals_data)
+summary(era_anova)
+```
+
+So again, we see a difference in the sign of the linear trend term, 
+depending on how you handle the non-detects.
+
+## Region Model
+### Standard ANOVA
+We compare results from standard ANOVA, which assumes uniform variances, and 
+Welch's ANOVA, which does not.
+#### Without the Non Detects
+```{r}
+region_anova_no_ND = lm(log(Result) ~ Region, data = metals_data)
+summary(region_anova_no_ND)
+
+```
+
+#### With the Non Detects
+```{r}
+region_anova = lm(log(nd_to_dl) ~ Region, data = metals_data)
+summary(region_anova)
+```
+
+### Welch's Test
+This  does not assume homogeneity of variances.
+
+#### Without the Non Detects
+```{r}
+region_welch_no_ND = oneway.test(log(Result) ~ Region, data = metals_data)
+
+region_welch_no_ND
+```
+
+#### With the Non Detects
+```{r}
+
+region_welch = oneway.test(log(nd_to_dl) ~ Region, data = metals_data)
+
+region_welch
+```
+
+So again, we see contradictory results of ANOVA depending on how we address the 
+non-detects.
+
+## Stepwise Model Selection
+### Without the Non Detects
+```{r}
+  mod <- lm(log(Result) ~ Era * Region, data = metals_data)
+  mod2 <- step(mod, trace = FALSE, direction = 'both')
+
+  mod2$call
+  anova(mod2)
+  summary(mod2)
+```
+  So `step()` drops the interaction term but retains both the main effects.
+
+
+### With the Non Detects
+```{r}
+  mod <- lm(log(nd_to_dl) ~ Era * Region, data = metals_data)
+  mod2 <- step(mod, trace = FALSE, direction = 'both')
+
+  mod2$call
+  anova(mod2)
+  summary(mod2)
+```
+So, what we see is that if we retain the non-detects, the slope of the trend is
+negative and differences between regions are marginally significant.
+
+# Mixed Effects Models
+A mixed effects model abstracts long-term unexplained  differences among
+sample locations (Substations) as sources of variation. We are not INTERESTED
+in that variability, but we know it exists.  This model reduces the unexplained
+variation in the model, improving sensitivity to other patterns.
+
+## Mixed Effects Linear Regression
+For our purposes, a linear regression makes better sense and uses available
+data slightly more completely.
+
+### Without the Non Detects
+```{r}
+mod <- lme(fixed = log(Result) ~ Sample_Year + Region,
+             random = ~ 1 | Substation,
+             data = metals_data,
+             method = 'REML',
+             na.action = na.omit)
+anova(mod)
+```
+
+```{r}
+summary(mod)
+```
+
+### With the Non Detects
+```{r}
+mod <- lme(fixed = log(nd_to_dl) ~ Sample_Year + Region,
+             random = ~ 1 | Substation,
+             data = metals_data,
+             method = 'REML',
+             na.action = na.omit)
+anova(mod)
+```
+
+```{r}
+summary(mod)
+```
+
+## Mixed Effects ANOVA
+### Without the Non Detects
+```{r}
+mod <- lme(fixed = log(Result) ~ Era + Region,
+             random = ~ 1 | Substation,
+             data = metals_data,
+             method = 'REML',
+             na.action = na.omit)
+anova(mod)
+```
+
+```{r}
+summary(mod)
+```
+
+## With the Non Detects
+```{r}
+mod <- lme(fixed = log(nd_to_dl) ~ Era + Region,
+             random = ~ 1 | Substation,
+             data = metals_data,
+             method = 'REML',
+             na.action = na.omit)
+summary(mod)
+```
+
+
