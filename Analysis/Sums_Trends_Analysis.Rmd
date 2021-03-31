@@ -12,6 +12,12 @@ output:
     src="https://www.cascobayestuary.org/wp-content/uploads/2014/04/logo_sm.jpg"
     style="position:absolute;top:10px;right:50px;" />
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.align = 'center',
+                      fig.width = 5, fig.height = 4,
+                      collapse = TRUE, comment = "#>")
+```
+
 # Introduction
 Casco Bay Estuary Partnership collected sediment samples in 1991, 1994, 2000,
 2001, 2002, 2010, and 2011 to look at concentrations of toxic contaminants in
@@ -220,7 +226,6 @@ larger model spaces or use bootstraps or permutation tests.
 # Ordered Factor Analysis by Decade
 We can also simplify tthe model to examine a linear trend by decade, but results
 are generally similar.
-
 ```{r}
 mods2 <-sums_data %>%
   mutate(Era = ordered(Era, levels = c("1990s", "2000s", "2010s"))) %>%

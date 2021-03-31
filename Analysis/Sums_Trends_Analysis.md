@@ -3,18 +3,18 @@ Trend Analysis for Selected Sums and Totals of Contaminants
 Curtis C. Bohlen, Casco Bay Estuary Partnership
 October 17, 2020
 
-  - [Introduction](#introduction)
-  - [Load Libraries](#load-libraries)
-  - [Load Data](#load-data)
-      - [Folder References](#folder-references)
-      - [Load Sums Data](#load-sums-data)
-          - [Sums Data Caveates](#sums-data-caveates)
-          - [Change Factor Levels](#change-factor-levels)
-          - [Delete Unused Parameters](#delete-unused-parameters)
-  - [Preliminary Trend Graphic](#preliminary-trend-graphic)
-  - [Statistical Significance of Linear
+-   [Introduction](#introduction)
+-   [Load Libraries](#load-libraries)
+-   [Load Data](#load-data)
+    -   [Folder References](#folder-references)
+    -   [Load Sums Data](#load-sums-data)
+        -   [Sums Data Caveates](#sums-data-caveates)
+        -   [Change Factor Levels](#change-factor-levels)
+        -   [Delete Unused Parameters](#delete-unused-parameters)
+-   [Preliminary Trend Graphic](#preliminary-trend-graphic)
+-   [Statistical Significance of Linear
     Trends](#statistical-significance-of-linear-trends)
-  - [Ordered Factor Analysis by
+-   [Ordered Factor Analysis by
     Decade](#ordered-factor-analysis-by-decade)
 
 <img
@@ -39,20 +39,14 @@ persistent in the marine environment.
 
 ``` r
 library(tidyverse)
-```
-
-    ## -- Attaching packages --------------------------------------------------------------------------------------- tidyverse 1.3.0 --
-
-    ## v ggplot2 3.3.2     v purrr   0.3.4
-    ## v tibble  3.0.3     v dplyr   1.0.2
-    ## v tidyr   1.1.2     v stringr 1.4.0
-    ## v readr   1.3.1     v forcats 0.5.0
-
-    ## -- Conflicts ------------------------------------------------------------------------------------------ tidyverse_conflicts() --
-    ## x dplyr::filter() masks stats::filter()
-    ## x dplyr::lag()    masks stats::lag()
-
-``` r
+#> -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
+#> v ggplot2 3.3.3     v purrr   0.3.4
+#> v tibble  3.0.5     v dplyr   1.0.3
+#> v tidyr   1.1.2     v stringr 1.4.0
+#> v readr   1.4.0     v forcats 0.5.0
+#> -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+#> x dplyr::filter() masks stats::filter()
+#> x dplyr::lag()    masks stats::lag()
 library(readxl)
 library(knitr)
 
@@ -219,15 +213,12 @@ sums_data %>%
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
   theme(legend.position = 'bottom',
         panel.border = element_rect(fill = NA, size = 0.25))
+#> `geom_smooth()` using formula 'y ~ x'
+#> Warning: Removed 230 rows containing non-finite values (stat_smooth).
+#> Warning: Removed 230 rows containing missing values (geom_point).
 ```
 
-    ## `geom_smooth()` using formula 'y ~ x'
-
-    ## Warning: Removed 230 rows containing non-finite values (stat_smooth).
-
-    ## Warning: Removed 230 rows containing missing values (geom_point).
-
-![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+<img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
 
 # Statistical Significance of Linear Trends
 
@@ -241,154 +232,142 @@ mods <-sums_data %>%
 
 ``` r
 mods$Parameter
-```
-
-    ## [1] Dioxins and Furans Butyltins          Total PAHs         Total PCBs        
-    ## [5] DDT Residues      
-    ## Levels: Butyltins Dioxins and Furans DDT Residues Total PAHs Total PCBs
-
-``` r
+#> [1] Dioxins and Furans Butyltins          Total PAHs         Total PCBs        
+#> [5] DDT Residues      
+#> Levels: Butyltins Dioxins and Furans DDT Residues Total PAHs Total PCBs
 lapply(mods$mod,summary)
+#> [[1]]
+#> 
+#> Call:
+#> lm(formula = log(Result) ~ Sample_Year, data = df)
+#> 
+#> Residuals:
+#>      Min       1Q   Median       3Q      Max 
+#> -2.29539 -0.63234 -0.08135  0.68522  1.72149 
+#> 
+#> Coefficients:
+#>              Estimate Std. Error t value Pr(>|t|)    
+#> (Intercept) 295.61742   33.92632   8.714 4.28e-13 ***
+#> Sample_Year  -0.14446    0.01696  -8.518 1.02e-12 ***
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Residual standard error: 0.9031 on 77 degrees of freedom
+#> Multiple R-squared:  0.4851, Adjusted R-squared:  0.4785 
+#> F-statistic: 72.56 on 1 and 77 DF,  p-value: 1.02e-12
+#> 
+#> 
+#> [[2]]
+#> 
+#> Call:
+#> lm(formula = log(Result) ~ Sample_Year, data = df)
+#> 
+#> Residuals:
+#>      Min       1Q   Median       3Q      Max 
+#> -1.76041 -0.55510  0.06896  0.46723  1.85527 
+#> 
+#> Coefficients:
+#>              Estimate Std. Error t value Pr(>|t|)    
+#> (Intercept) 187.05883   39.23357   4.768 1.45e-05 ***
+#> Sample_Year  -0.09232    0.01963  -4.702 1.82e-05 ***
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Residual standard error: 0.814 on 54 degrees of freedom
+#>   (67 observations deleted due to missingness)
+#> Multiple R-squared:  0.2905, Adjusted R-squared:  0.2774 
+#> F-statistic: 22.11 on 1 and 54 DF,  p-value: 1.821e-05
+#> 
+#> 
+#> [[3]]
+#> 
+#> Call:
+#> lm(formula = log(Result) ~ Sample_Year, data = df)
+#> 
+#> Residuals:
+#>     Min      1Q  Median      3Q     Max 
+#> -4.5159 -0.6958  0.0281  0.7771  3.4244 
+#> 
+#> Coefficients:
+#>              Estimate Std. Error t value Pr(>|t|)    
+#> (Intercept) 221.22353   21.85915  10.120   <2e-16 ***
+#> Sample_Year  -0.10778    0.01092  -9.869   <2e-16 ***
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Residual standard error: 1.289 on 223 degrees of freedom
+#> Multiple R-squared:  0.304,  Adjusted R-squared:  0.3009 
+#> F-statistic: 97.39 on 1 and 223 DF,  p-value: < 2.2e-16
+#> 
+#> 
+#> [[4]]
+#> 
+#> Call:
+#> lm(formula = log(Result) ~ Sample_Year, data = df)
+#> 
+#> Residuals:
+#>     Min      1Q  Median      3Q     Max 
+#> -3.3691 -0.6213  0.0532  0.6440  3.7492 
+#> 
+#> Coefficients:
+#>              Estimate Std. Error t value Pr(>|t|)    
+#> (Intercept) 227.28909   38.76718   5.863 3.12e-08 ***
+#> Sample_Year  -0.11294    0.01942  -5.816 3.91e-08 ***
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Residual standard error: 1.176 on 140 degrees of freedom
+#>   (81 observations deleted due to missingness)
+#> Multiple R-squared:  0.1946, Adjusted R-squared:  0.1889 
+#> F-statistic: 33.83 on 1 and 140 DF,  p-value: 3.907e-08
+#> 
+#> 
+#> [[5]]
+#> 
+#> Call:
+#> lm(formula = log(Result) ~ Sample_Year, data = df)
+#> 
+#> Residuals:
+#>     Min      1Q  Median      3Q     Max 
+#> -5.2649 -0.6792  0.0402  0.7430  5.7799 
+#> 
+#> Coefficients:
+#>              Estimate Std. Error t value Pr(>|t|)
+#> (Intercept) -6.235372  46.601998  -0.134    0.894
+#> Sample_Year  0.003287   0.023343   0.141    0.888
+#> 
+#> Residual standard error: 1.411 on 139 degrees of freedom
+#>   (82 observations deleted due to missingness)
+#> Multiple R-squared:  0.0001426,  Adjusted R-squared:  -0.007051 
+#> F-statistic: 0.01983 on 1 and 139 DF,  p-value: 0.8882
 ```
-
-    ## [[1]]
-    ## 
-    ## Call:
-    ## lm(formula = log(Result) ~ Sample_Year, data = df)
-    ## 
-    ## Residuals:
-    ##      Min       1Q   Median       3Q      Max 
-    ## -2.29539 -0.63234 -0.08135  0.68522  1.72149 
-    ## 
-    ## Coefficients:
-    ##              Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) 295.61742   33.92632   8.714 4.28e-13 ***
-    ## Sample_Year  -0.14446    0.01696  -8.518 1.02e-12 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.9031 on 77 degrees of freedom
-    ## Multiple R-squared:  0.4851, Adjusted R-squared:  0.4785 
-    ## F-statistic: 72.56 on 1 and 77 DF,  p-value: 1.02e-12
-    ## 
-    ## 
-    ## [[2]]
-    ## 
-    ## Call:
-    ## lm(formula = log(Result) ~ Sample_Year, data = df)
-    ## 
-    ## Residuals:
-    ##      Min       1Q   Median       3Q      Max 
-    ## -1.76041 -0.55510  0.06896  0.46723  1.85527 
-    ## 
-    ## Coefficients:
-    ##              Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) 187.05883   39.23357   4.768 1.45e-05 ***
-    ## Sample_Year  -0.09232    0.01963  -4.702 1.82e-05 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.814 on 54 degrees of freedom
-    ##   (67 observations deleted due to missingness)
-    ## Multiple R-squared:  0.2905, Adjusted R-squared:  0.2774 
-    ## F-statistic: 22.11 on 1 and 54 DF,  p-value: 1.821e-05
-    ## 
-    ## 
-    ## [[3]]
-    ## 
-    ## Call:
-    ## lm(formula = log(Result) ~ Sample_Year, data = df)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -4.5159 -0.6958  0.0281  0.7771  3.4244 
-    ## 
-    ## Coefficients:
-    ##              Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) 221.22353   21.85915  10.120   <2e-16 ***
-    ## Sample_Year  -0.10778    0.01092  -9.869   <2e-16 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 1.289 on 223 degrees of freedom
-    ## Multiple R-squared:  0.304,  Adjusted R-squared:  0.3009 
-    ## F-statistic: 97.39 on 1 and 223 DF,  p-value: < 2.2e-16
-    ## 
-    ## 
-    ## [[4]]
-    ## 
-    ## Call:
-    ## lm(formula = log(Result) ~ Sample_Year, data = df)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -3.3691 -0.6213  0.0532  0.6440  3.7492 
-    ## 
-    ## Coefficients:
-    ##              Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) 227.28909   38.76718   5.863 3.12e-08 ***
-    ## Sample_Year  -0.11294    0.01942  -5.816 3.91e-08 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 1.176 on 140 degrees of freedom
-    ##   (81 observations deleted due to missingness)
-    ## Multiple R-squared:  0.1946, Adjusted R-squared:  0.1889 
-    ## F-statistic: 33.83 on 1 and 140 DF,  p-value: 3.907e-08
-    ## 
-    ## 
-    ## [[5]]
-    ## 
-    ## Call:
-    ## lm(formula = log(Result) ~ Sample_Year, data = df)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -5.2649 -0.6792  0.0402  0.7430  5.7799 
-    ## 
-    ## Coefficients:
-    ##              Estimate Std. Error t value Pr(>|t|)
-    ## (Intercept) -6.235372  46.601998  -0.134    0.894
-    ## Sample_Year  0.003287   0.023343   0.141    0.888
-    ## 
-    ## Residual standard error: 1.411 on 139 degrees of freedom
-    ##   (82 observations deleted due to missingness)
-    ## Multiple R-squared:  0.0001426,  Adjusted R-squared:  -0.007051 
-    ## F-statistic: 0.01983 on 1 and 139 DF,  p-value: 0.8882
 
 SO, all are highly statistically significant, except the DDT residues
 total.
 
 ``` r
 cat(paste(as.character(mods$Parameter), collapse = '   ...   '))
-```
-
-    ## Dioxins and Furans   ...   Butyltins   ...   Total PAHs   ...   Total PCBs   ...   DDT Residues
-
-``` r
+#> Dioxins and Furans   ...   Butyltins   ...   Total PAHs   ...   Total PCBs   ...   DDT Residues
 cat('\n')
-```
-
-``` r
 lapply(mods$mod,plot)
 ```
 
-![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-4.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-5.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-6.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-7.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-8.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-9.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-10.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-11.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-12.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-13.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-14.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-15.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-16.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-17.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-18.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-19.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-20.png)<!-- -->
+<img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-1.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-2.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-3.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-4.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-5.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-6.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-7.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-8.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-9.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-10.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-11.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-12.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-13.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-14.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-15.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-16.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-17.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-18.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-19.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-6-20.png" style="display: block; margin: auto;" />
 
-    ## [[1]]
-    ## NULL
-    ## 
-    ## [[2]]
-    ## NULL
-    ## 
-    ## [[3]]
-    ## NULL
-    ## 
-    ## [[4]]
-    ## NULL
-    ## 
-    ## [[5]]
-    ## NULL
+    #> [[1]]
+    #> NULL
+    #> 
+    #> [[2]]
+    #> NULL
+    #> 
+    #> [[3]]
+    #> NULL
+    #> 
+    #> [[4]]
+    #> NULL
+    #> 
+    #> [[5]]
+    #> NULL
 
 The model diagnostic plots are not great poor, for several of these
 models, but not dreadful. Given high levels of statistical significance,
@@ -412,125 +391,120 @@ mods2 <-sums_data %>%
 
 ``` r
 mods2$Parameter
-```
-
-    ## [1] Dioxins and Furans Butyltins          Total PAHs         Total PCBs        
-    ## [5] DDT Residues      
-    ## Levels: Butyltins Dioxins and Furans DDT Residues Total PAHs Total PCBs
-
-``` r
+#> [1] Dioxins and Furans Butyltins          Total PAHs         Total PCBs        
+#> [5] DDT Residues      
+#> Levels: Butyltins Dioxins and Furans DDT Residues Total PAHs Total PCBs
 lapply(mods2$mod,summary)
+#> [[1]]
+#> 
+#> Call:
+#> lm(formula = log(Result) ~ Era, data = df)
+#> 
+#> Residuals:
+#>     Min      1Q  Median      3Q     Max 
+#> -1.8262 -0.3575  0.1594  0.4370  2.2873 
+#> 
+#> Coefficients:
+#>             Estimate Std. Error t value Pr(>|t|)    
+#> (Intercept)  6.33825    0.08302  76.348  < 2e-16 ***
+#> Era.L       -1.77684    0.15218 -11.676  < 2e-16 ***
+#> Era.Q       -1.01458    0.13488  -7.522 8.99e-11 ***
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Residual standard error: 0.709 on 76 degrees of freedom
+#> Multiple R-squared:  0.6868, Adjusted R-squared:  0.6786 
+#> F-statistic: 83.33 on 2 and 76 DF,  p-value: < 2.2e-16
+#> 
+#> 
+#> [[2]]
+#> 
+#> Call:
+#> lm(formula = log(Result) ~ Era, data = df)
+#> 
+#> Residuals:
+#>      Min       1Q   Median       3Q      Max 
+#> -1.70713 -0.53474  0.03426  0.51468  1.75237 
+#> 
+#> Coefficients:
+#>             Estimate Std. Error t value Pr(>|t|)    
+#> (Intercept)   2.1800     0.1351  16.135  < 2e-16 ***
+#> Era.L        -1.2312     0.2549  -4.831  1.2e-05 ***
+#> Era.Q        -0.3059     0.2111  -1.449    0.153    
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Residual standard error: 0.8081 on 53 degrees of freedom
+#>   (67 observations deleted due to missingness)
+#> Multiple R-squared:  0.3136, Adjusted R-squared:  0.2877 
+#> F-statistic: 12.11 on 2 and 53 DF,  p-value: 4.674e-05
+#> 
+#> 
+#> [[3]]
+#> 
+#> Call:
+#> lm(formula = log(Result) ~ Era, data = df)
+#> 
+#> Residuals:
+#>     Min      1Q  Median      3Q     Max 
+#> -4.1171 -0.4939  0.0423  0.6595  3.1553 
+#> 
+#> Coefficients:
+#>             Estimate Std. Error t value Pr(>|t|)    
+#> (Intercept)  5.56336    0.07882  70.584  < 2e-16 ***
+#> Era.L       -1.45419    0.13815 -10.526  < 2e-16 ***
+#> Era.Q       -0.86903    0.13487  -6.443 7.16e-10 ***
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Residual standard error: 1.176 on 222 degrees of freedom
+#> Multiple R-squared:  0.4224, Adjusted R-squared:  0.4172 
+#> F-statistic: 81.18 on 2 and 222 DF,  p-value: < 2.2e-16
+#> 
+#> 
+#> [[4]]
+#> 
+#> Call:
+#> lm(formula = log(Result) ~ Era, data = df)
+#> 
+#> Residuals:
+#>     Min      1Q  Median      3Q     Max 
+#> -3.4413 -0.6128  0.0992  0.6484  3.4783 
+#> 
+#> Coefficients:
+#>             Estimate Std. Error t value Pr(>|t|)    
+#> (Intercept)   2.5687     0.3804   6.753 3.63e-10 ***
+#> Era.L         1.0826     0.8017   1.350 0.179072    
+#> Era.Q         1.6885     0.4747   3.557 0.000514 ***
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Residual standard error: 1.125 on 139 degrees of freedom
+#>   (81 observations deleted due to missingness)
+#> Multiple R-squared:  0.2679, Adjusted R-squared:  0.2573 
+#> F-statistic: 25.43 on 2 and 139 DF,  p-value: 3.883e-10
+#> 
+#> 
+#> [[5]]
+#> 
+#> Call:
+#> lm(formula = log(Result) ~ Era, data = df)
+#> 
+#> Residuals:
+#>     Min      1Q  Median      3Q     Max 
+#> -5.2993 -0.6701  0.0221  0.7633  5.8063 
+#> 
+#> Coefficients:
+#>             Estimate Std. Error t value Pr(>|t|)
+#> (Intercept)  0.25114    0.47875   0.525    0.601
+#> Era.L       -0.17512    1.00898  -0.174    0.862
+#> Era.Q       -0.07839    0.59764  -0.131    0.896
+#> 
+#> Residual standard error: 1.416 on 138 degrees of freedom
+#>   (82 observations deleted due to missingness)
+#> Multiple R-squared:  0.0002917,  Adjusted R-squared:  -0.0142 
+#> F-statistic: 0.02014 on 2 and 138 DF,  p-value: 0.9801
 ```
-
-    ## [[1]]
-    ## 
-    ## Call:
-    ## lm(formula = log(Result) ~ Era, data = df)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -1.8262 -0.3575  0.1594  0.4370  2.2873 
-    ## 
-    ## Coefficients:
-    ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)  6.33825    0.08302  76.348  < 2e-16 ***
-    ## Era.L       -1.77684    0.15218 -11.676  < 2e-16 ***
-    ## Era.Q       -1.01458    0.13488  -7.522 8.99e-11 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.709 on 76 degrees of freedom
-    ## Multiple R-squared:  0.6868, Adjusted R-squared:  0.6786 
-    ## F-statistic: 83.33 on 2 and 76 DF,  p-value: < 2.2e-16
-    ## 
-    ## 
-    ## [[2]]
-    ## 
-    ## Call:
-    ## lm(formula = log(Result) ~ Era, data = df)
-    ## 
-    ## Residuals:
-    ##      Min       1Q   Median       3Q      Max 
-    ## -1.70713 -0.53474  0.03426  0.51468  1.75237 
-    ## 
-    ## Coefficients:
-    ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)   2.1800     0.1351  16.135  < 2e-16 ***
-    ## Era.L        -1.2312     0.2549  -4.831  1.2e-05 ***
-    ## Era.Q        -0.3059     0.2111  -1.449    0.153    
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.8081 on 53 degrees of freedom
-    ##   (67 observations deleted due to missingness)
-    ## Multiple R-squared:  0.3136, Adjusted R-squared:  0.2877 
-    ## F-statistic: 12.11 on 2 and 53 DF,  p-value: 4.674e-05
-    ## 
-    ## 
-    ## [[3]]
-    ## 
-    ## Call:
-    ## lm(formula = log(Result) ~ Era, data = df)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -4.1171 -0.4939  0.0423  0.6595  3.1553 
-    ## 
-    ## Coefficients:
-    ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)  5.56336    0.07882  70.584  < 2e-16 ***
-    ## Era.L       -1.45419    0.13815 -10.526  < 2e-16 ***
-    ## Era.Q       -0.86903    0.13487  -6.443 7.16e-10 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 1.176 on 222 degrees of freedom
-    ## Multiple R-squared:  0.4224, Adjusted R-squared:  0.4172 
-    ## F-statistic: 81.18 on 2 and 222 DF,  p-value: < 2.2e-16
-    ## 
-    ## 
-    ## [[4]]
-    ## 
-    ## Call:
-    ## lm(formula = log(Result) ~ Era, data = df)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -3.4413 -0.6128  0.0992  0.6484  3.4783 
-    ## 
-    ## Coefficients:
-    ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)   2.5687     0.3804   6.753 3.63e-10 ***
-    ## Era.L         1.0826     0.8017   1.350 0.179072    
-    ## Era.Q         1.6885     0.4747   3.557 0.000514 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 1.125 on 139 degrees of freedom
-    ##   (81 observations deleted due to missingness)
-    ## Multiple R-squared:  0.2679, Adjusted R-squared:  0.2573 
-    ## F-statistic: 25.43 on 2 and 139 DF,  p-value: 3.883e-10
-    ## 
-    ## 
-    ## [[5]]
-    ## 
-    ## Call:
-    ## lm(formula = log(Result) ~ Era, data = df)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -5.2993 -0.6701  0.0221  0.7633  5.8063 
-    ## 
-    ## Coefficients:
-    ##             Estimate Std. Error t value Pr(>|t|)
-    ## (Intercept)  0.25114    0.47875   0.525    0.601
-    ## Era.L       -0.17512    1.00898  -0.174    0.862
-    ## Era.Q       -0.07839    0.59764  -0.131    0.896
-    ## 
-    ## Residual standard error: 1.416 on 138 degrees of freedom
-    ##   (82 observations deleted due to missingness)
-    ## Multiple R-squared:  0.0002917,  Adjusted R-squared:  -0.0142 
-    ## F-statistic: 0.02014 on 2 and 138 DF,  p-value: 0.9801
 
 So, results are broadly similar. Note that PAHs show a significant
 quadratic, but not linear trend. Unfortunately, if anything, the
@@ -538,39 +512,35 @@ diagnostic plots are worse, not better.
 
 ``` r
 mods2$Parameter
-```
-
-    ## [1] Dioxins and Furans Butyltins          Total PAHs         Total PCBs        
-    ## [5] DDT Residues      
-    ## Levels: Butyltins Dioxins and Furans DDT Residues Total PAHs Total PCBs
-
-``` r
+#> [1] Dioxins and Furans Butyltins          Total PAHs         Total PCBs        
+#> [5] DDT Residues      
+#> Levels: Butyltins Dioxins and Furans DDT Residues Total PAHs Total PCBs
 lapply(mods2$mod,plot)
 ```
 
-![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-3.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-4.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-5.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-6.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-7.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-8.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-9.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-10.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-11.png)<!-- -->
+<img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-1.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-2.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-3.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-4.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-5.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-6.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-7.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-8.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-9.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-10.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-11.png" style="display: block; margin: auto;" />
 
-    ## Warning: not plotting observations with leverage one:
-    ##   142
+    #> Warning: not plotting observations with leverage one:
+    #>   142
 
-![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-12.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-13.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-14.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-15.png)<!-- -->
+<img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-12.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-13.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-14.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-15.png" style="display: block; margin: auto;" />
 
-    ## Warning: not plotting observations with leverage one:
-    ##   141
+    #> Warning: not plotting observations with leverage one:
+    #>   141
 
-![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-16.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-17.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-18.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-19.png)<!-- -->![](Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-20.png)<!-- -->
+<img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-16.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-17.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-18.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-19.png" style="display: block; margin: auto;" /><img src="Sums_Trends_Analysis_files/figure-gfm/unnamed-chunk-9-20.png" style="display: block; margin: auto;" />
 
-    ## [[1]]
-    ## NULL
-    ## 
-    ## [[2]]
-    ## NULL
-    ## 
-    ## [[3]]
-    ## NULL
-    ## 
-    ## [[4]]
-    ## NULL
-    ## 
-    ## [[5]]
-    ## NULL
+    #> [[1]]
+    #> NULL
+    #> 
+    #> [[2]]
+    #> NULL
+    #> 
+    #> [[3]]
+    #> NULL
+    #> 
+    #> [[4]]
+    #> NULL
+    #> 
+    #> [[5]]
+    #> NULL
