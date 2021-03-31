@@ -106,7 +106,7 @@ library(tidyverse)
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
 library(readxl)
-library(knitr)
+#library(knitr)
 
 library(mblm)
 library(nlme)
