@@ -43,20 +43,14 @@ persistent in the marine environment.
 
 ``` r
 library(tidyverse)
-```
-
-    ## -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
-
-    ## v ggplot2 3.3.3     v purrr   0.3.4
-    ## v tibble  3.0.5     v dplyr   1.0.3
-    ## v tidyr   1.1.2     v stringr 1.4.0
-    ## v readr   1.4.0     v forcats 0.5.0
-
-    ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
-    ## x dplyr::filter() masks stats::filter()
-    ## x dplyr::lag()    masks stats::lag()
-
-``` r
+#> -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
+#> v ggplot2 3.3.3     v purrr   0.3.4
+#> v tibble  3.0.5     v dplyr   1.0.3
+#> v tidyr   1.1.2     v stringr 1.4.0
+#> v readr   1.4.0     v forcats 0.5.0
+#> -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+#> x dplyr::filter() masks stats::filter()
+#> x dplyr::lag()    masks stats::lag()
 library(readxl)
 library(knitr)
 
@@ -138,8 +132,8 @@ simplify graphics, we re-express the Dioxin and Furan values in PPT,
 below.
 
 There are no SQuiRTs for Dioxins and Furans. Instead, Ramboll also
-expressed them in TEQ – Tox equivalents. Toxic equivalents provide a way
-to estimate the cumulative toxic effect of a mixture of related
+expressed them in TEQ – toxic equivalents. Toxic equivalents provide a
+way to estimate the cumulative toxic effect of a mixture of related
 chemicals by weighting each compound by its relative toxic effect,
 compared to some reference compound (conventionally TCDD).
 
@@ -235,11 +229,10 @@ sums_data %>%
   theme_cbep(base_size = 10) +
   scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 100^x),
               labels = scales::trans_format("log10", scales::math_format(10^.x)))
+#> Warning: Removed 230 rows containing missing values (geom_point).
 ```
 
-    ## Warning: Removed 230 rows containing missing values (geom_point).
-
-![](Graphics_Sums_files/figure-gfm/prelim_graphic-1.png)<!-- -->
+<img src="Graphics_Sums_files/figure-gfm/prelim_graphic-1.png" style="display: block; margin: auto;" />
 
 ``` r
 sums_data %>%
@@ -251,18 +244,17 @@ sums_data %>%
               labels = scales::trans_format("log10", scales::math_format(10^.x))) +
   theme(axis.text.x = element_text(angle = 90)) +
   theme(legend.position = 'bottom')
+#> Warning: Removed 230 rows containing missing values (geom_point).
 ```
 
-    ## Warning: Removed 230 rows containing missing values (geom_point).
-
-![](Graphics_Sums_files/figure-gfm/prelimi_graphic_wide-1.png)<!-- -->
+<img src="Graphics_Sums_files/figure-gfm/prelimi_graphic_wide-1.png" style="display: block; margin: auto;" />
 
 # Regional Graphics
 
 To make graphics comparable to the ones produced for the Portland Harbor
 Toxics, we should focus on “Total PAHs”, “Total PCBs”, and “DDT
-Residues”. It’s not obvious whether we shoul prepare panels by region or
-by parameter, so we try both.
+Residues”. It’s not obvious whether we should prepare panels by region
+or by parameter, so we try both.
 
 ``` r
 sums_data %>%
@@ -273,7 +265,8 @@ sums_data %>%
                                        "DDT Residues"))) %>%
 
   ggplot(aes(x = Region, y = Result)) +
-  geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
+  geom_jitter(aes(color = LVL), size = 2, alpha = 0.35,
+              width = 0.2, height = 0) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
   scale_color_manual(name = '', values = tox_colors, na.value = na_color,
@@ -288,13 +281,13 @@ sums_data %>%
   
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
   theme(legend.position = 'bottom')
+#> Warning: Removed 163 rows containing missing values (geom_point).
 ```
 
-    ## Warning: Removed 163 rows containing missing values (geom_point).
-
-![](Graphics_Sums_files/figure-gfm/three_organics_graphic-1.png)<!-- -->
+<img src="Graphics_Sums_files/figure-gfm/three_organics_graphic-1.png" style="display: block; margin: auto;" />
 
 ``` r
+  
 #ggsave('figures/threeorganics.pdf', device = cairo_pdf, width = 7, height = 5)
 ```
 
@@ -321,7 +314,7 @@ sums_data %>%
                                        "Dioxins and Furans"))) %>%
 
   ggplot(aes(x = Region, y = Result)) +
-  geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
+  geom_jitter(aes(color = LVL), size = 2, alpha = 0.35, width = 0.2, height = 0) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
   scale_color_manual(name = '', values = tox_colors, na.value = na_color,
@@ -336,20 +329,21 @@ sums_data %>%
   
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
   theme(legend.position = 'bottom')
+#> Warning: Removed 163 rows containing missing values (geom_point).
 ```
 
-    ## Warning: Removed 163 rows containing missing values (geom_point).
-
-![](Graphics_Sums_files/figure-gfm/four_organics_graphics-1.png)<!-- -->
+<img src="Graphics_Sums_files/figure-gfm/four_organics_graphics-1.png" style="display: block; margin: auto;" />
 
 ``` r
+  
 #ggsave('figures/fourorganics.pdf', device = cairo_pdf, width = 7, height = )
 ```
 
 ``` r
 sums_data %>%
   ggplot(aes(x = Parameter, y = Result)) +
-  geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
+  geom_jitter(aes(color = LVL), size = 2, alpha = 0.35,
+              width = 0.2, height = 0) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
   scale_color_manual(name = '', values = tox_colors, na.value = na_color,
@@ -365,23 +359,22 @@ sums_data %>%
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
   theme(legend.position = 'bottom',
         panel.border = element_rect(fill = NA, size = 0.25))
+#> Warning: Removed 230 rows containing missing values (geom_point).
 ```
 
-    ## Warning: Removed 230 rows containing missing values (geom_point).
-
-![](Graphics_Sums_files/figure-gfm/five_regions-1.png)<!-- -->
+<img src="Graphics_Sums_files/figure-gfm/five_regions-1.png" style="display: block; margin: auto;" />
 
 ``` r
 ggsave('figures/five_regions_by_Region.pdf', device = cairo_pdf,
-       width = 7, height = 3.5)
+       width = 7, height = 4)
+#> Warning: Removed 230 rows containing missing values (geom_point).
 ```
-
-    ## Warning: Removed 230 rows containing missing values (geom_point).
 
 ``` r
 sums_data %>%
   ggplot(aes(x = Region, y = Result)) +
-  geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
+  geom_jitter(aes(color = LVL), size = 2, alpha = 0.35, 
+              width = 0.2, height = 0) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
   scale_color_manual(name = '', values = tox_colors, na.value = na_color,
@@ -395,20 +388,18 @@ sums_data %>%
   ylab('Concentration (ppb)') +
   xlab('') +
   
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.35, hjust = 1)) +
   theme(legend.position = 'bottom',
         panel.border = element_rect(fill = NA, size = 0.25))
+#> Warning: Removed 230 rows containing missing values (geom_point).
 ```
 
-    ## Warning: Removed 230 rows containing missing values (geom_point).
-
-![](Graphics_Sums_files/figure-gfm/five_regions_by_parm-1.png)<!-- -->
+<img src="Graphics_Sums_files/figure-gfm/five_regions_by_parm-1.png" style="display: block; margin: auto;" />
 
 ``` r
 ggsave('figures/five_regions_by_parameter.pdf', device = cairo_pdf, width = 7, height = 3.5)
+#> Warning: Removed 230 rows containing missing values (geom_point).
 ```
-
-    ## Warning: Removed 230 rows containing missing values (geom_point).
 
 We don’t have sufficient detections to show a similar graphic for just
 the 2010s. The Ramboll study treated non-detects as missing, thus
@@ -421,7 +412,8 @@ Ramboll report, but these graphics show why that may be problematic.
 sums_data %>%
   filter(Sample_Year  > 2005) %>%
   ggplot(aes(x = Region, y = Result)) +
-  geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
+  geom_jitter(aes(color = LVL), size = 2, alpha = 0.35, 
+              width = 0.2, height = 0) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
   scale_color_manual(name = '', values = tox_colors, na.value = na_color,
@@ -438,11 +430,10 @@ sums_data %>%
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
   theme(legend.position = 'bottom',
         panel.border = element_rect(fill = NA, size = 0.25))
+#> Warning: Removed 215 rows containing missing values (geom_point).
 ```
 
-    ## Warning: Removed 215 rows containing missing values (geom_point).
-
-![](Graphics_Sums_files/figure-gfm/five_region_by_parm_recent-1.png)<!-- -->
+<img src="Graphics_Sums_files/figure-gfm/five_region_by_parm_recent-1.png" style="display: block; margin: auto;" />
 
 ``` r
 #ggsave('figures/five_regions_by_parameter_recent.pdf', device = cairo_pdf, width = 7, height = 3.5)
@@ -453,7 +444,7 @@ sums_data %>%
 ``` r
 plt <- sums_data %>%
   ggplot(aes(x = Sample_Year, y = Result)) +
-  geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
+  geom_point(aes(color = LVL), size = 2, alpha = 0.35) +
  
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
@@ -476,15 +467,12 @@ plt <- sums_data %>%
 plt+
    geom_smooth(method = 'lm', se = FALSE, color = cbep_colors()[3],
               lwd = 0.5, lty = 2)
+#> `geom_smooth()` using formula 'y ~ x'
+#> Warning: Removed 230 rows containing non-finite values (stat_smooth).
+#> Warning: Removed 230 rows containing missing values (geom_point).
 ```
 
-    ## `geom_smooth()` using formula 'y ~ x'
-
-    ## Warning: Removed 230 rows containing non-finite values (stat_smooth).
-
-    ## Warning: Removed 230 rows containing missing values (geom_point).
-
-![](Graphics_Sums_files/figure-gfm/trend_plot_base-1.png)<!-- -->
+<img src="Graphics_Sums_files/figure-gfm/trend_plot_base-1.png" style="display: block; margin: auto;" />
 
 ## Add Only Selected Trendlines
 
@@ -492,12 +480,12 @@ We should NOT show trend lines for: \* DDT – trend not significant , and
 few detects in 2010 \* PCBs – few detects in 2010, so stop regression
 line in 2002.
 
-Arguably, a trend line is potnetially misleading for Dioxins and Furans
+Arguably, a trend line is potentially misleading for Dioxins and Furans
 as well, since the “trend” all occurs between 2000 and 2010, but we’ll
 leave that in as the graphic makes that clear.
 
-We can build a dataframe to control where lines are drawn as follows. We
-run linear models, extract coefficients (or predictions), calculate
+We can build a data frame to control where lines are drawn as follows.
+We run linear models, extract coefficients (or predictions), calculate
 predictions, and plot.
 
 ## Calculate Regression Line Points
@@ -505,7 +493,7 @@ predictions, and plot.
 ``` r
   slope_and_intercept <- sums_data %>%
   
-  # Remove DDT data, for wich we want no line
+  # Remove DDT data, for which we want no line
   filter(Parameter != "DDT Residues") %>%
   # Remove lone detection in 2010 for PCBs, so we fit shorter line
   filter(! (Parameter == "Total PCBs" & Sample_Year > 2005)) %>%
@@ -534,15 +522,13 @@ predicts <- slope_and_intercept %>%
 
 ``` r
 plt + geom_line(aes(Year, predict), data = predicts, lwd = 0.5, lty = 2)
+#> Warning: Removed 230 rows containing missing values (geom_point).
 ```
 
-    ## Warning: Removed 230 rows containing missing values (geom_point).
-
-![](Graphics_Sums_files/figure-gfm/trend_graphic_final-1.png)<!-- -->
+<img src="Graphics_Sums_files/figure-gfm/trend_graphic_final-1.png" style="display: block; margin: auto;" />
 
 ``` r
 ggsave('figures/five_organics_trends.pdf',
        device = cairo_pdf, width = 7, height = 3.5)
+#> Warning: Removed 230 rows containing missing values (geom_point).
 ```
-
-    ## Warning: Removed 230 rows containing missing values (geom_point).

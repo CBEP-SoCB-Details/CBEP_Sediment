@@ -12,7 +12,6 @@ output:
     src="https://www.cascobayestuary.org/wp-content/uploads/2014/04/logo_sm.jpg"
     style="position:absolute;top:10px;right:50px;" />
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(fig.align = 'center',
                       fig.width = 5, fig.height = 4,
@@ -107,7 +106,7 @@ pg/g or approximately parts per trillion.  To simplify graphics, we re-express
 the Dioxin and Furan values in PPT, below.  
 
 There are no SQuiRTs for Dioxins and Furans. Instead, Ramboll also expressed
-them in TEQ -- Tox equivalents.  Toxic equivalents provide a way to estimate the
+them in TEQ -- toxic equivalents.  Toxic equivalents provide a way to estimate the
 cumulative toxic effect of a mixture of related chemicals by weighting each
 compound by its relative toxic effect, compared to some reference compound
 (conventionally TCDD).
@@ -215,7 +214,7 @@ sums_data %>%
 # Regional Graphics
 To make graphics comparable to the ones produced for the Portland Harbor Toxics,
 we should focus on "Total PAHs", "Total PCBs", and "DDT Residues".  It's not
-obvious whether we shoul prepare panels by region or by parameter, so we try
+obvious whether we should prepare panels by region or by parameter, so we try
 both.
 
 ```{r three_organics_graphic, fig.width = 7, fig.height = 5}
@@ -227,7 +226,8 @@ sums_data %>%
                                        "DDT Residues"))) %>%
 
   ggplot(aes(x = Region, y = Result)) +
-  geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
+  geom_jitter(aes(color = LVL), size = 2, alpha = 0.35,
+              width = 0.2, height = 0) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
   scale_color_manual(name = '', values = tox_colors, na.value = na_color,
@@ -268,7 +268,7 @@ sums_data %>%
                                        "Dioxins and Furans"))) %>%
 
   ggplot(aes(x = Region, y = Result)) +
-  geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
+  geom_jitter(aes(color = LVL), size = 2, alpha = 0.35, width = 0.2, height = 0) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
   scale_color_manual(name = '', values = tox_colors, na.value = na_color,
@@ -288,10 +288,11 @@ sums_data %>%
 
 ```
 
-```{r five_regions, fig.width = 7, fig.height = 3.5}
+```{r five_regions, fig.width = 7, fig.height = 4}
 sums_data %>%
   ggplot(aes(x = Parameter, y = Result)) +
-  geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
+  geom_jitter(aes(color = LVL), size = 2, alpha = 0.35,
+              width = 0.2, height = 0) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
   scale_color_manual(name = '', values = tox_colors, na.value = na_color,
@@ -308,13 +309,14 @@ sums_data %>%
   theme(legend.position = 'bottom',
         panel.border = element_rect(fill = NA, size = 0.25))
 ggsave('figures/five_regions_by_Region.pdf', device = cairo_pdf,
-       width = 7, height = 3.5)
+       width = 7, height = 4)
 ```
 
 ```{r five_regions_by_parm, fig.width = 7, fig.height = 3.5}
 sums_data %>%
   ggplot(aes(x = Region, y = Result)) +
-  geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
+  geom_jitter(aes(color = LVL), size = 2, alpha = 0.35, 
+              width = 0.2, height = 0) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
   scale_color_manual(name = '', values = tox_colors, na.value = na_color,
@@ -328,7 +330,7 @@ sums_data %>%
   ylab('Concentration (ppb)') +
   xlab('') +
   
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.35, hjust = 1)) +
   theme(legend.position = 'bottom',
         panel.border = element_rect(fill = NA, size = 0.25))
 
@@ -345,7 +347,8 @@ that may be problematic.
 sums_data %>%
   filter(Sample_Year  > 2005) %>%
   ggplot(aes(x = Region, y = Result)) +
-  geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
+  geom_jitter(aes(color = LVL), size = 2, alpha = 0.35, 
+              width = 0.2, height = 0) +
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
   scale_color_manual(name = '', values = tox_colors, na.value = na_color,
@@ -370,7 +373,7 @@ sums_data %>%
 ```{r trend_plot_base, fig.width = 7, fig.height = 3.5}
 plt <- sums_data %>%
   ggplot(aes(x = Sample_Year, y = Result)) +
-  geom_point(aes(color = LVL), size = 2, alpha = 0.5) +
+  geom_point(aes(color = LVL), size = 2, alpha = 0.35) +
  
   
   scale_y_log10(labels=scales::label_comma(accuracy = 0.1)) +
@@ -400,11 +403,11 @@ We should NOT show trend lines for:
 *  DDT -- trend not significant , and few detects in 2010
 *  PCBs -- few detects in 2010, so stop regression line in 2002.
 
-Arguably, a trend line is potnetially misleading for Dioxins and Furans as well,
+Arguably, a trend line is potentially misleading for Dioxins and Furans as well,
 since the "trend" all occurs between 2000 and 2010, but we'll leave that in as
 the graphic makes that clear.
 
-We can build a dataframe to control where lines are drawn as follows.  We run
+We can build a data frame to control where lines are drawn as follows.  We run
 linear models, extract coefficients (or predictions), calculate predictions,
 and plot.
 
@@ -412,7 +415,7 @@ and plot.
 ```{r calc_regression_lines}
   slope_and_intercept <- sums_data %>%
   
-  # Remove DDT data, for wich we want no line
+  # Remove DDT data, for which we want no line
   filter(Parameter != "DDT Residues") %>%
   # Remove lone detection in 2010 for PCBs, so we fit shorter line
   filter(! (Parameter == "Total PCBs" & Sample_Year > 2005)) %>%
