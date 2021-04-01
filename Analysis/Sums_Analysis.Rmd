@@ -111,7 +111,7 @@ be fully compatible with available benchmarks.
 Ramboll standardized units in the Access database, so, most sums are expressed
 in ng/g dry weight (~ ppb). The Dioxins and Furans are expressed in ng/kg, or
 pg/g or approximately parts per trillion.  To simplify graphics, we re-express
-the Dioxin and Furan values in PPT, below.  
+the Dioxin and Furan values in PPB, below.  
 
 There are no SQuiRTs for Dioxins and Furans. Instead, Ramboll also expressed
 them in TEQ -- Toxic equivalents.  Toxic equivalents provide a way to estimate the
@@ -168,11 +168,8 @@ sums_data <- sums_data %>%
                                        )))
 ```
 
-
-
-
-### Reexpress Dioxins and Furans in PPT
-```{r rescale_to_ppt}
+### Reexpress Dioxins and Furans in PPB
+```{r rescale_to_ppB}
 sums_data <- sums_data %>%
   mutate(Result = if_else(Parameter == "Dioxins and Furans",
                           Result/1000,

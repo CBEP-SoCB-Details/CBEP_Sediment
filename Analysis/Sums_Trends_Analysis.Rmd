@@ -159,8 +159,6 @@ sums_data <- sums_data %>%
 ```
 
 
-
-
 # Preliminary Trend Graphic
 ```{r fig.width = 8, fig.height = 4}
 sums_data %>%
@@ -221,10 +219,8 @@ not dreadful. Given high levels of statistical significance, the model
 violations are probably not material, but a more careful analysis might explore
 larger model spaces or use bootstraps or permutation tests.
 
-
-
 # Ordered Factor Analysis by Decade
-We can also simplify tthe model to examine a linear trend by decade, but results
+We can also simplify the model to examine a linear trend by decade, but results
 are generally similar.
 ```{r}
 mods2 <-sums_data %>%

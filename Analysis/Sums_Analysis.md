@@ -12,7 +12,7 @@ Curtis C. Bohlen, Casco Bay Estuary Partnership
         -   [Change Factor Levels](#change-factor-levels)
         -   [Delete Unused Parameters](#delete-unused-parameters)
         -   [Reexpress Dioxins and Furans in
-            PPT](#reexpress-dioxins-and-furans-in-ppt)
+            PPB](#reexpress-dioxins-and-furans-in-ppb)
 -   [Define Color Scale](#define-color-scale)
 -   [Preliminary Graphics](#preliminary-graphics)
 -   [Region Only ANOVA](#region-only-anova)
@@ -161,7 +161,7 @@ reported here may not be fully compatible with available benchmarks.
 Ramboll standardized units in the Access database, so, most sums are
 expressed in ng/g dry weight (\~ ppb). The Dioxins and Furans are
 expressed in ng/kg, or pg/g or approximately parts per trillion. To
-simplify graphics, we re-express the Dioxin and Furan values in PPT,
+simplify graphics, we re-express the Dioxin and Furan values in PPB,
 below.
 
 There are no SQuiRTs for Dioxins and Furans. Instead, Ramboll also
@@ -222,7 +222,7 @@ sums_data <- sums_data %>%
                                        )))
 ```
 
-### Reexpress Dioxins and Furans in PPT
+### Reexpress Dioxins and Furans in PPB
 
 ``` r
 sums_data <- sums_data %>%
