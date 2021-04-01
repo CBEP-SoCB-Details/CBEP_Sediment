@@ -11,4 +11,4 @@ Shapefiles were produced as follows:
 3.  We generated event layers from those data tables (based on UTM coordinates,
     Zone 19 N, NAD 1983), and
 
-4.  Eexported the resulting layers as shapefiles.
+4.  Exported the resulting layers as shapefiles.

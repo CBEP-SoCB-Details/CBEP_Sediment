@@ -133,7 +133,7 @@ reference providing multiple screening levels for many toxic compounds, known as
 (Effects Range Medium) values for selected parameters. 
 
 Additional details on the SQuiRT tables are available in the archives containing
-data on analysis of toxic compounds in Porland Harbor sediments, available at
+data on analysis of toxic compounds in Portland Harbor sediments, available at
 https://github.com/ccb60/PortlandHarborToxics .
 
 ```{r load_squirts}
@@ -156,7 +156,7 @@ units.  The derived units are documented in a data column called "Units_fin".
 
 In general, metals screening levels are expressed in µg/g dry, while organic
 contaminants are expressed in ng/g dry.  The former correspond approximately to
-parts per billion, the latter to parts per trillion.
+parts per million, the latter to parts per billion.
 
 ## Sums and Totals
 Ramboll Environ prepared a Query in the Access Database they that calculated
@@ -231,7 +231,6 @@ clean up after ourselves.
 This is a repetitive enough process to justify writing a simple function
 to automate it.  This ensures we handle all subfiles in a similar way.
 
-
 ```{r find_parameter_names}
 (sum_names    <- unique(sums_data$Parameter))
 ```
@@ -288,11 +287,10 @@ a consequence, "totals" have included different numbers of constituents.
 Further, to make "totals" fully comparable to benchmarks or other studies,
 well-defined sets of compounds need to be summed. The result is a number of
 "totals" that were used in historical analyses, but that are not of value here.
- 
 
 ## PAH Data
-Three historic PAH "Totals" were included in the data.  FOr analysis or
-reanalysis of raw data, we do not want to include them, so we removbe them here.
+Three historic PAH "Totals" were included in the data.  For analysis or
+reanalysis of raw data, we do not want to include them, so we remove them here.
 ```{r clean_pah_data}
 extras <- c('PAHs (High MW 13)', 'PAHs (Low MW 9)', 'PAHs (total 22)')
 pah_data <- pah_data %>%
@@ -332,9 +330,9 @@ phys_data <- phys_data %>%
 ```
 
 ### Remove Extra "Organic Carbon (total)" Data
-Organic Carbon is in the dataset (where it is available at all) in two different
+Organic Carbon is in the data set (where it is available at all) in two different
 sets of units.  We retain only the version that is in percent, for the
-simplicity of making sure that all the units in this dataset are the same.
+simplicity of making sure that all the units in this data set are the same.
 ```{r remove_alt_OC_units}
 phys_data <- phys_data %>%
   filter(!( Parameter == 'Organic Carbon (total)' & Result > 200))

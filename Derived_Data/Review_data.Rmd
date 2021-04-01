@@ -170,8 +170,10 @@ must pre-date Ramboll's work.
 xtabs(~Era + Parameter_Group  + Units, data = sedtox_data)
 ```
 
-Note that metals are in $\mu g/g$ or ppm, organics are in $n g/g$ or ppb,
-physical observations in percent.
+Note that metals are in $\mu g/g$ or ppm, organics are in $n g/g$ or ppb, or
+(for dioxins and furans) in ng/kg, or parts per trillion (ppt is ambiguous, but
+usually refers to parts per trillion).  Physical observations are generally in 
+percent.
 
 # Subdivide Data By Parameter Group
 It is worth separating by Parameter Group into smaller, more manageable
@@ -444,8 +446,6 @@ phys_data %>%
   filter(Sample_ID == 'CBEP2010-WB08')
 ```
 
-
-
 The inconsistent reporting of the Gravel Fraction makes it impossible to be sure
 how to interpret the sand and silt/sand fractions for all samples.  Best
 practice here may be to recalculate those values based on the gravel-free
@@ -466,7 +466,6 @@ phys_data %>%
 ```
 
 That points out that ZERO values here are "really" NAs.  
-
 
 # Examine Structure of Sums Data
 ```{r}
@@ -502,10 +501,10 @@ Ramboll Standardized units in the Access database, so, MOST sums are expressed
 in ng/g dry weight (~ ppb). 
 
 The Dioxins and Furans are expressed in ng/kg, or pg/g or approximately parts
-per trilion.  There are no Squirts for Dioxins and Furans.  Instead, Ramboll
+per trillion.  There are no Squirts for Dioxins and Furans.  Instead, Ramboll
 ALSO expressed them in TEQ -- Tox equivalents.  Toxic equivalents provide a way
 to estimate the cumulative toxic effect of a mixture of related chemicals by 
-eighting each compound by its relative toxic effect, compared to some reference
+weighting each compound by its relative toxic effect, compared to some reference
 compound (conventionally TCDD).
 
 # Load SQuiRTs Data
