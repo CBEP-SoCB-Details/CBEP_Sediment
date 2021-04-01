@@ -179,7 +179,7 @@ metals_data %>%
   
   theme_cbep(base_size = 12) +
 
-  ylab('Concentration (ppb)') +
+  ylab('Concentration (ppm)') +
   xlab('') +
   
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
@@ -205,7 +205,7 @@ metals_data %>%
   
   theme_cbep(base_size = 12) +
 
-  ylab('Concentration (ppb)') +
+  ylab('Concentration (ppm)') +
   xlab('') +
   
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
@@ -231,7 +231,7 @@ metals_data %>%
   
   theme_cbep(base_size = 10) +
 
-  ylab('Concentration (ppb)') +
+  ylab('Concentration (ppm)') +
   xlab('') +
   
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
@@ -260,7 +260,7 @@ plt <- metals_data %>%
 
   theme_cbep(base_size = 10) +
 
-  ylab('Concentration (ppb)') +
+  ylab('Concentration (ppm)') +
   xlab('') +
 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +

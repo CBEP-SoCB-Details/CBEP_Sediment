@@ -3,27 +3,27 @@ Graphics Showing Patterns for Metals
 Curtis C. Bohlen, Casco Bay Estuary Partnership
 Revised October 19, 2020
 
-  - [Introduction](#introduction)
-  - [Load Libraries](#load-libraries)
-  - [Load Data](#load-data)
-      - [Folder References](#folder-references)
-      - [Metals Data](#metals-data)
-          - [Units](#units)
-          - [Change Factor Levels](#change-factor-levels)
-  - [Preliminary Graphic](#preliminary-graphic)
-  - [Delete Unused Parameters](#delete-unused-parameters)
-  - [Revised Preliminary Graphic](#revised-preliminary-graphic)
-  - [Regional Graphics](#regional-graphics)
-      - [Initial version](#initial-version)
-      - [Ordered by Metal
+-   [Introduction](#introduction)
+-   [Load Libraries](#load-libraries)
+-   [Load Data](#load-data)
+    -   [Folder References](#folder-references)
+    -   [Metals Data](#metals-data)
+        -   [Units](#units)
+        -   [Change Factor Levels](#change-factor-levels)
+-   [Preliminary Graphic](#preliminary-graphic)
+-   [Delete Unused Parameters](#delete-unused-parameters)
+-   [Revised Preliminary Graphic](#revised-preliminary-graphic)
+-   [Regional Graphics](#regional-graphics)
+    -   [Initial version](#initial-version)
+    -   [Ordered by Metal
         Concetrations](#ordered-by-metal-concetrations)
-  - [Trend Graphics](#trend-graphics)
-      - [Initial Draft](#initial-draft)
-      - [Add Statistically Significant
+-   [Trend Graphics](#trend-graphics)
+    -   [Initial Draft](#initial-draft)
+    -   [Add Statistically Significant
         Trendlines](#add-statistically-significant-trendlines)
-      - [Calculate Regression line
+    -   [Calculate Regression line
         Points](#calculate-regression-line-points)
-      - [Final Version](#final-version)
+    -   [Final Version](#final-version)
 
 <img
     src="https://www.cascobayestuary.org/wp-content/uploads/2014/04/logo_sm.jpg"
@@ -47,20 +47,14 @@ persistent in the marine environment.
 
 ``` r
 library(tidyverse)
-```
-
-    ## -- Attaching packages --------------------------------------------------------------------------------------- tidyverse 1.3.0 --
-
-    ## v ggplot2 3.3.2     v purrr   0.3.4
-    ## v tibble  3.0.3     v dplyr   1.0.2
-    ## v tidyr   1.1.2     v stringr 1.4.0
-    ## v readr   1.3.1     v forcats 0.5.0
-
-    ## -- Conflicts ------------------------------------------------------------------------------------------ tidyverse_conflicts() --
-    ## x dplyr::filter() masks stats::filter()
-    ## x dplyr::lag()    masks stats::lag()
-
-``` r
+#> -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
+#> v ggplot2 3.3.3     v purrr   0.3.4
+#> v tibble  3.0.5     v dplyr   1.0.3
+#> v tidyr   1.1.2     v stringr 1.4.0
+#> v readr   1.4.0     v forcats 0.5.0
+#> -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+#> x dplyr::filter() masks stats::filter()
+#> x dplyr::lag()    masks stats::lag()
 library(readxl)
 library(knitr)
 
@@ -117,7 +111,7 @@ metals_data <- read_csv(file.path(niece,fn),
 See the “Review\_Data.Rmd” for details.
 
 Ramboll Standardized units in the Access database, so, concentrations of
-metals are expressed in \(\mu g/g\) dry weight (\~ ppm).
+metals are expressed in *μ**g*/*g* dry weight (\~ ppm).
 
 There are no SQuiRTs for Dioxins and Furans. Instead, Ramboll also
 expressed them in TEQ – Tox equivalents. Toxic equivalents provide a way
@@ -148,11 +142,10 @@ metals_data %>%
   theme_cbep(base_size = 10) +
   scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 100^x),
               labels = scales::trans_format("log10", scales::math_format(10^.x)))
+#> Warning: Removed 96 rows containing missing values (geom_point).
 ```
 
-    ## Warning: Removed 96 rows containing missing values (geom_point).
-
-![](Graphics_Metals_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+<img src="Graphics_Metals_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
 
 # Delete Unused Parameters
 
@@ -191,7 +184,7 @@ metals_data %>%
               labels = scales::trans_format("log10", scales::math_format(10^.x)))
 ```
 
-![](Graphics_Metals_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+<img src="Graphics_Metals_files/figure-gfm/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
 
 ``` r
 metals_data %>%
@@ -205,7 +198,7 @@ metals_data %>%
   theme(legend.position = 'bottom')
 ```
 
-![](Graphics_Metals_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+<img src="Graphics_Metals_files/figure-gfm/unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
 
 # Regional Graphics
 
@@ -225,7 +218,7 @@ metals_data %>%
   
   theme_cbep(base_size = 12) +
 
-  ylab('Concentration (ppb)') +
+  ylab('Concentration (ppm)') +
   xlab('') +
   
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
@@ -233,7 +226,7 @@ metals_data %>%
         panel.border = element_rect(fill = NA, size = 0.25))
 ```
 
-![](Graphics_Metals_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+<img src="Graphics_Metals_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
 
 ``` r
 #ggsave('figures/metals_five_regions.pdf', device = cairo_pdf, width = 7, height = 5)
@@ -258,7 +251,7 @@ metals_data %>%
   
   theme_cbep(base_size = 12) +
 
-  ylab('Concentration (ppb)') +
+  ylab('Concentration (ppm)') +
   xlab('') +
   
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
@@ -266,7 +259,7 @@ metals_data %>%
         panel.border = element_rect(fill = NA, size = 0.25))
 ```
 
-![](Graphics_Metals_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+<img src="Graphics_Metals_files/figure-gfm/unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
 
 ``` r
 ggsave('figures/metals_five_regions.pdf', device = cairo_pdf, width = 7, height = 5)
@@ -290,7 +283,7 @@ metals_data %>%
   
   theme_cbep(base_size = 10) +
 
-  ylab('Concentration (ppb)') +
+  ylab('Concentration (ppm)') +
   xlab('') +
   
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
@@ -299,7 +292,7 @@ metals_data %>%
   theme(strip.placement = 'inside')
 ```
 
-![](Graphics_Metals_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+<img src="Graphics_Metals_files/figure-gfm/unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
 
 ``` r
  ggsave('figures/metals_parameters.pdf', device = cairo_pdf, width = 7, height = 5)
@@ -325,7 +318,7 @@ plt <- metals_data %>%
 
   theme_cbep(base_size = 10) +
 
-  ylab('Concentration (ppb)') +
+  ylab('Concentration (ppm)') +
   xlab('') +
 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.25, hjust = 1)) +
@@ -335,11 +328,10 @@ plt <- metals_data %>%
 plt+
    geom_smooth(method = 'lm', se = FALSE, color = cbep_colors()[3],
               lwd = 0.5, lty = 2)
+#> `geom_smooth()` using formula 'y ~ x'
 ```
 
-    ## `geom_smooth()` using formula 'y ~ x'
-
-![](Graphics_Metals_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+<img src="Graphics_Metals_files/figure-gfm/unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
 
 ## Add Statistically Significant Trendlines
 
@@ -388,7 +380,7 @@ predicts <- slope_and_intercept %>%
 plt + geom_line(aes(Year, predict), data = predicts, lwd = 0.5, lty = 2)
 ```
 
-![](Graphics_Metals_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+<img src="Graphics_Metals_files/figure-gfm/unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
 
 ``` r
 ggsave('figures/metals_trends.pdf',
