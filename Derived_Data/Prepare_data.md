@@ -98,7 +98,7 @@ five major subregions of the Bay, as follows
 > includes Quahog Bay and the New Meadows River in southern Brunswick
 > and Phippsburg.
 
-> Cape Small: Cape Small is the eastern most region of the bay. It
+> Cape Small: Cape Small is the easternmost region of the bay. It
 > includes the southern end of the Phippsburg peninsula to Small Point.
 > The mouth of the Lower Kennebec River flows into the Gulf of Maine to
 > the east of Phippsburg. While it is not part of Casco Bay, coastal
@@ -347,12 +347,12 @@ methods changed. As a consequence, “totals” have included different
 numbers of constituents. Further, to make “totals” fully comparable to
 benchmarks or other studies, well-defined sets of compounds need to be
 summed. The result is a number of “totals” that were used in historical
-analyses, but that are not of value here.
+analyses, but those are not of value here.
 
 ## PAH Data
 
-Three historic PAH “Totals” were included in the data. FOr analysis or
-reanalysis of raw data, we do not want to include them, so we removbe
+Three historic PAH “Totals” were included in the data. For analysis or
+reanalysis of raw data, we do not want to include them, so we remove
 them here.
 
 ``` r
@@ -485,7 +485,7 @@ phys_data <- phys_data %>%
 
 ### Simplify Data
 
-Many of the remaining data columns have little meaning n the context of
+Many of the remaining data columns have little meaning in the context of
 the physical data parameters, such as grain size, so we strip them out
 here.
 
