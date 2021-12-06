@@ -107,7 +107,7 @@ five major subregions of the Bay, as follows
 > includes Quahog Bay and the New Meadows River in southern Brunswick
 > and Phippsburg.
 
-> Cape Small: Cape Small is the eastern most region of the bay. It
+> Cape Small: Cape Small is the easternmost region of the bay. It
 > includes the southern end of the Phippsburg peninsula to Small Point.
 > The mouth of the Lower Kennebec River flows into the Gulf of Maine to
 > the east of Phippsburg. While it is not part of Casco Bay, coastal
@@ -784,7 +784,7 @@ xtabs(~ Parameter + Parameter_Group , data = pah_data)
     ##   Phenanthrene               147
     ##   Pyrene                     225
 
-So under Pahs, we have six totals,
+So under PAHs, we have six totals,
 
 The following PAH Totals are NOT included in the “official” totals, and
 should be removed from the data:
@@ -996,7 +996,7 @@ data.
 #### Silt And Clay Totals
 
 Silt Clay is consistently EITHER the sum of other silt and clay values
-or a measuremetn where silt and clay values are not also available.
+or a measurement where silt and clay values are not also available.
 
 ``` r
 phys_data %>%
@@ -1346,15 +1346,15 @@ Ramboll Standardized units in the Access database, so, MOST sums are
 expressed in ng/g dry weight (\~ ppb).
 
 The Dioxins and Furans are expressed in ng/kg, or pg/g or approximately
-parts per trilion. There are no Squirts for Dioxins and Furans. Instead,
+parts per trillion. There are no Squirts for Dioxins and Furans. Instead,
 Ramboll ALSO expressed them in TEQ – Tox equivalents. Toxic equivalents
 provide a way to estimate the cumulative toxic effect of a mixture of
-related chemicals by eighting each compound by its relative toxic
+related chemicals by weighting each compound by its relative toxic
 effect, compared to some reference compound (conventionally TCDD).
 
 # Load SQuiRTs Data
 
-We compare those totals to the SQuiRTs, when availalbe. Ramboll
+We compare those totals to the SQuiRTs, when available. Ramboll
 Environ’s Access database again contains a table derived from the
 SQuiRTs, containing ERL (Effects Range Low) and ERM (Effects Range
 Medium) values for selected parameters.
