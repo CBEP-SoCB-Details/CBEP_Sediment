@@ -129,7 +129,7 @@ xtabs(~Parameter + Era, data = sums_data, subset = ! is.na(Result))
     ##   PCBs (total)              65    76     1
     ##   Pesticides (total)        65    76     1
 
-SO non-detects are a real problem for Pesticides, PCBs, and Butyltins in
+So non-detects are a real problem for Pesticides, PCBs, and Butyltins in
 2000 and 2001.
 
 **The metadata is not entirely clear, but it appears (from examining the
