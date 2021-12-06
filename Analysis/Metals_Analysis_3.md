@@ -418,7 +418,7 @@ Selenium, pointing to what they saw as a POSITIVE slope, but their
 analysis omitted non-detects. But because of the strong non-normal
 distribution of the selenium data, and because the selenium data from
 2010 and 2011 had a very different distribution from earlier
-observations, we don’t believe either analysis….
+observations, we don’t believe either analysis.
 
 ## Model Diagnostic Plots
 
@@ -917,7 +917,7 @@ sig_step
 #> [1] "Chromium" "Copper"   "Lead"     "Nickel"   "Selenium" "Zinc"     "Mercury"
 ```
 
-### What’s up with Lead and silver??
+### What’s up with Lead and silver?
 
 Note that Lead is the only that selects a model with a significant
 interaction.
@@ -1022,7 +1022,7 @@ West Bay, leading to a significant quadratic (but not linear) effect of
 Era. Few interactions are significant. The only Region where a decline
 is possible is Cape Small, but eyeing the parameters (-0.045 - 0.503) =
 -0.548, with a standard error probably about 0.2, the drop is likely
-significant, but we don’t persue a formal calculation to confirm).
+significant, but we don’t pursue a formal calculation to confirm).
 
 # Mixed Effects Models
 
