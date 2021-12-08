@@ -106,8 +106,8 @@ pg/g or approximately parts per trillion.  To simplify graphics, we re-express
 the Dioxin and Furan values in PPB, below.  
 
 There are no SQuiRTs for Dioxins and Furans. Instead, Ramboll also expressed
-them in TEQ -- toxic equivalents.  Toxic equivalents provide a way to estimate the
-cumulative toxic effect of a mixture of related chemicals by weighting each
+them in TEQ -- toxic equivalents.  Toxic equivalents provide a way to estimate
+the cumulative toxic effect of a mixture of related chemicals by weighting each
 compound by its relative toxic effect, compared to some reference compound
 (conventionally TCDD).
 
