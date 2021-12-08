@@ -3,13 +3,13 @@ Review CBEP Historical Sediment Data
 Curtis C. Bohlen, Casco Bay Estuary Partnership
 October 13, 2020
 
-  - [Introduction](#introduction)
-  - [Load Libraries](#load-libraries)
-  - [Load Data](#load-data)
-      - [Folder References](#folder-references)
-  - [Sums Data](#sums-data)
-  - [Examine Structure of Sums Data](#examine-structure-of-sums-data)
-  - [Units](#units)
+-   [Introduction](#introduction)
+-   [Load Libraries](#load-libraries)
+-   [Load Data](#load-data)
+    -   [Folder References](#folder-references)
+-   [Sums Data](#sums-data)
+-   [Examine Structure of Sums Data](#examine-structure-of-sums-data)
+-   [Units](#units)
 
 <img
     src="https://www.cascobayestuary.org/wp-content/uploads/2014/04/logo_sm.jpg"
@@ -35,21 +35,35 @@ persistent in the marine environment.
 library(tidyverse)
 ```
 
-    ## -- Attaching packages --------------------------------------------------------------------------------------- tidyverse 1.3.0 --
+    ## Warning: package 'tidyverse' was built under R version 4.0.5
 
-    ## v ggplot2 3.3.2     v purrr   0.3.4
-    ## v tibble  3.0.3     v dplyr   1.0.2
-    ## v tidyr   1.1.2     v stringr 1.4.0
-    ## v readr   1.3.1     v forcats 0.5.0
+    ## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
 
-    ## -- Conflicts ------------------------------------------------------------------------------------------ tidyverse_conflicts() --
+    ## v ggplot2 3.3.5     v purrr   0.3.4
+    ## v tibble  3.1.6     v dplyr   1.0.7
+    ## v tidyr   1.1.4     v stringr 1.4.0
+    ## v readr   2.1.0     v forcats 0.5.1
+
+    ## Warning: package 'ggplot2' was built under R version 4.0.5
+
+    ## Warning: package 'tidyr' was built under R version 4.0.5
+
+    ## Warning: package 'dplyr' was built under R version 4.0.5
+
+    ## Warning: package 'forcats' was built under R version 4.0.5
+
+    ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
 ``` r
 library(readxl)
 library(knitr)
+```
 
+    ## Warning: package 'knitr' was built under R version 4.0.5
+
+``` r
 # library(GGally)
 
 library(CBEPgraphics)
@@ -129,7 +143,7 @@ xtabs(~Parameter + Era, data = sums_data, subset = ! is.na(Result))
     ##   PCBs (total)              65    76     1
     ##   Pesticides (total)        65    76     1
 
-SO non-detects are a real problem for Pesticides, PCBs, and Butyltins in
+So non-detects are a real problem for Pesticides, PCBs, and Butyltins in
 2000 and 2001.
 
 **The metadata is not entirely clear, but it appears (from examining the

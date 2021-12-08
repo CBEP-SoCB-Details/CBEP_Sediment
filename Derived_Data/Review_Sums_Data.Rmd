@@ -80,7 +80,7 @@ the last couple of years.  Those appear in these data as NAs:
 xtabs(~Parameter + Era, data = sums_data, subset = ! is.na(Result))
 ```
 
-SO non-detects are a real problem for Pesticides, PCBs, and Butyltins in 2000
+So non-detects are a real problem for Pesticides, PCBs, and Butyltins in 2000
 and 2001.
 
 **The metadata is not entirely clear, but it appears (from examining the Access

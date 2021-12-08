@@ -30,7 +30,7 @@ March 29, 2020
     -   [Significance Test with Kendall’s
         Tau](#significance-test-with-kendalls-tau)
     -   [Values of Tau](#values-of-tau)
-        -   [Plot Tau vs. Robust Slope](#plot-tau-vs.-robust-slope)
+        -   [Plot Tau vs. Robust Slope](#plot-tau-vs-robust-slope)
 -   [ANOVA (Ordered Factor) Analysis](#anova-ordered-factor-analysis)
     -   [Era Model](#era-model)
     -   [Region Model](#region-model)
@@ -40,7 +40,7 @@ March 29, 2020
     -   [Statistical Significance of Temporal
         Trend](#statistical-significance-of-temporal-trend)
         -   [What’s up with Lead and
-            silver??](#whats-up-with-lead-and-silver)
+            Silver](#whats-up-with-lead-and-silver)
 -   [Mixed Effects Models](#mixed-effects-models)
     -   [Mixed Effects Linear
         Regression](#mixed-effects-linear-regression)
@@ -97,11 +97,16 @@ thus provide similar results to what they reported.
 
 ``` r
 library(tidyverse)
-#> -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
-#> v ggplot2 3.3.3     v purrr   0.3.4
-#> v tibble  3.0.5     v dplyr   1.0.3
-#> v tidyr   1.1.2     v stringr 1.4.0
-#> v readr   1.4.0     v forcats 0.5.0
+#> Warning: package 'tidyverse' was built under R version 4.0.5
+#> -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
+#> v ggplot2 3.3.5     v purrr   0.3.4
+#> v tibble  3.1.6     v dplyr   1.0.7
+#> v tidyr   1.1.4     v stringr 1.4.0
+#> v readr   2.1.0     v forcats 0.5.1
+#> Warning: package 'ggplot2' was built under R version 4.0.5
+#> Warning: package 'tidyr' was built under R version 4.0.5
+#> Warning: package 'dplyr' was built under R version 4.0.5
+#> Warning: package 'forcats' was built under R version 4.0.5
 #> -- Conflicts ------------------------------------------ tidyverse_conflicts() --
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
@@ -117,6 +122,7 @@ library(nlme)
 #>     collapse
 #library(lme4)
 library(emmeans)
+#> Warning: package 'emmeans' was built under R version 4.0.5
 library(MASS)
 #> 
 #> Attaching package: 'MASS'
@@ -407,7 +413,7 @@ lm_slopes[lm_p_vals<0.025]
 #> [1] -0.008230204
 #> 
 #> $Selenium
-#> [1] -0.03179565
+#> [1] -0.03178244
 #> 
 #> $Zinc
 #> [1] -0.008647957
@@ -418,7 +424,7 @@ Selenium, pointing to what they saw as a POSITIVE slope, but their
 analysis omitted non-detects. But because of the strong non-normal
 distribution of the selenium data, and because the selenium data from
 2010 and 2011 had a very different distribution from earlier
-observations, we don’t believe either analysis….
+observations, we don’t believe either analysi..
 
 ## Model Diagnostic Plots
 
@@ -631,7 +637,7 @@ era_slopes[sig_era]
 #> [1] -0.1137825
 #> 
 #> $Selenium
-#> [1] -0.4563049
+#> [1] -0.4561798
 #> 
 #> $Zinc
 #> [1] -0.1199401
@@ -868,7 +874,7 @@ for (p in sig_list) {
 }
 #> Cadmium 
 #>   Estimate   Pr(>|t|) 
-#> 0.09575011 0.23414807 
+#> 0.09551498 0.23542361 
 #> Chromium 
 #>     Estimate     Pr(>|t|) 
 #> -0.124698652  0.002509458 
@@ -883,16 +889,16 @@ for (p in sig_list) {
 #> -0.124344987  0.005018625 
 #> Selenium 
 #>     Estimate     Pr(>|t|) 
-#> -0.456304868  0.001615592 
+#> -0.456179774  0.001618013 
 #> Zinc 
 #>     Estimate     Pr(>|t|) 
 #> -0.136078236  0.001799012 
 #> Mercury 
 #>    Estimate    Pr(>|t|) 
-#> -0.19604727  0.01127618 
+#> -0.19567575  0.01134726 
 #> Silver 
 #>    Estimate    Pr(>|t|) 
-#> -0.04558335  0.74199406
+#> -0.04531393  0.74348597
 ```
 
 Note that cadmium and silver are included here, because the Era term was
@@ -917,7 +923,7 @@ sig_step
 #> [1] "Chromium" "Copper"   "Lead"     "Nickel"   "Selenium" "Zinc"     "Mercury"
 ```
 
-### What’s up with Lead and silver??
+### What’s up with Lead and Silver
 
 Note that Lead is the only that selects a model with a significant
 interaction.
@@ -983,30 +989,30 @@ summary(ag_mod)
 #> 
 #> Residuals:
 #>      Min       1Q   Median       3Q      Max 
-#> -2.61984 -0.28168  0.03654  0.32422  1.49223 
+#> -2.61184 -0.28168  0.03654  0.32422  1.49216 
 #> 
 #> Coefficients:
 #>                        Estimate Std. Error t value Pr(>|t|)    
-#> (Intercept)            -1.14254    0.07674 -14.888  < 2e-16 ***
-#> Era.L                  -0.04558    0.13828  -0.330 0.741994    
-#> Era.Q                  -0.25798    0.12734  -2.026 0.044008 *  
-#> RegionWest Bay         -0.45932    0.11003  -4.174 4.34e-05 ***
-#> RegionEast Bay         -0.43430    0.11939  -3.638 0.000344 ***
-#> RegionOuter Bay        -0.69248    0.11704  -5.916 1.28e-08 ***
-#> RegionCape Small       -1.46626    0.15164  -9.670  < 2e-16 ***
-#> Era.L:RegionWest Bay    0.38769    0.19761   1.962 0.051062 .  
-#> Era.Q:RegionWest Bay    0.05754    0.18328   0.314 0.753859    
-#> Era.L:RegionEast Bay    0.25407    0.21202   1.198 0.232107    
-#> Era.Q:RegionEast Bay   -0.15395    0.20142  -0.764 0.445512    
-#> Era.L:RegionOuter Bay  -0.19687    0.20400  -0.965 0.335604    
-#> Era.Q:RegionOuter Bay  -0.20596    0.20145  -1.022 0.307741    
-#> Era.L:RegionCape Small -0.50169    0.27193  -1.845 0.066429 .  
-#> Era.Q:RegionCape Small -0.64764    0.25301  -2.560 0.011160 *  
+#> (Intercept)            -1.14242    0.07675 -14.885  < 2e-16 ***
+#> Era.L                  -0.04531    0.13829  -0.328 0.743486    
+#> Era.Q                  -0.25782    0.12735  -2.025 0.044152 *  
+#> RegionWest Bay         -0.45945    0.11004  -4.175 4.32e-05 ***
+#> RegionEast Bay         -0.43441    0.11940  -3.638 0.000344 ***
+#> RegionOuter Bay        -0.69297    0.11705  -5.920 1.26e-08 ***
+#> RegionCape Small       -1.46616    0.15165  -9.668  < 2e-16 ***
+#> Era.L:RegionWest Bay    0.38742    0.19763   1.960 0.051242 .  
+#> Era.Q:RegionWest Bay    0.05739    0.18330   0.313 0.754524    
+#> Era.L:RegionEast Bay    0.25386    0.21204   1.197 0.232546    
+#> Era.Q:RegionEast Bay   -0.15408    0.20144  -0.765 0.445180    
+#> Era.L:RegionOuter Bay  -0.19791    0.20402  -0.970 0.333101    
+#> Era.Q:RegionOuter Bay  -0.20656    0.20147  -1.025 0.306375    
+#> Era.L:RegionCape Small -0.50147    0.27196  -1.844 0.066571 .  
+#> Era.Q:RegionCape Small -0.64752    0.25303  -2.559 0.011182 *  
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> Residual standard error: 0.5952 on 215 degrees of freedom
-#> Multiple R-squared:  0.4184, Adjusted R-squared:  0.3806 
+#> Residual standard error: 0.5953 on 215 degrees of freedom
+#> Multiple R-squared:  0.4185, Adjusted R-squared:  0.3806 
 #> F-statistic: 11.05 on 14 and 215 DF,  p-value: < 2.2e-16
 emmip(ag_mod, Region ~ Era, type = 'Response')
 ```
@@ -1022,7 +1028,7 @@ West Bay, leading to a significant quadratic (but not linear) effect of
 Era. Few interactions are significant. The only Region where a decline
 is possible is Cape Small, but eyeing the parameters (-0.045 - 0.503) =
 -0.548, with a standard error probably about 0.2, the drop is likely
-significant, but we don’t persue a formal calculation to confirm).
+significant, but we don’t pursue a formal calculation to confirm).
 
 # Mixed Effects Models
 
@@ -1071,7 +1077,7 @@ me_lr_slopes[sig_me_lr]
 #> [1] -0.006958773
 #> 
 #> $Cadmium
-#> [1] 0.009764399
+#> [1] 0.009744972
 #> 
 #> $Chromium
 #> [1] -0.006536973
@@ -1086,7 +1092,7 @@ me_lr_slopes[sig_me_lr]
 #> [1] -0.007049378
 #> 
 #> $Selenium
-#> [1] -0.02878337
+#> [1] -0.02879852
 #> 
 #> $Zinc
 #> [1] -0.007869143
@@ -1199,7 +1205,7 @@ me_slopes[me_p_vals<0.025]
 #> [1] -0.09811321
 #> 
 #> $Selenium
-#> [1] -0.4098934
+#> [1] -0.4101547
 #> 
 #> $Zinc
 #> [1] -0.1134925

@@ -71,7 +71,7 @@ Royal and Harraseeket Rivers discharge into West Bay.
 and Bailey Islands on the west and Phippsburg on the east. It includes Quahog
 Bay and the New Meadows River in southern Brunswick and Phippsburg.
 
-> Cape Small: Cape Small is the eastern most region of the bay. It includes the
+> Cape Small: Cape Small is the easternmost region of the bay. It includes the
 southern end of the Phippsburg peninsula to Small Point. The mouth of the Lower
 Kennebec River flows into the Gulf of Maine to the east of Phippsburg. While it
 is not part of Casco Bay, coastal circulation patterns indicate that the
@@ -163,7 +163,6 @@ rm(tmp)
 Note that parameters include totals and sums.  But, confusingly, not all sums
 included here were (re)calculated in the Access database Sums table.  Some
 must pre-date Ramboll's work.  
-
 
 # Units
 ```{r}
@@ -282,7 +281,7 @@ chromium, not a sum of other observations.
 xtabs(~ Parameter + Parameter_Group , data = pah_data)
 ```
 
-So under Pahs, we have six totals,
+So under PAHs, we have six totals,
 
 The following PAH Totals are NOT included in the "official" totals, and 
 should be removed from the data:
@@ -334,11 +333,10 @@ of sites with high gravel.
 These sums probably need to be removed and recalculated, without removing the
 data associated with samples where we have no finer-scale data.
 
-   
 ### Checks on sums and totals
 #### Silt And Clay Totals
 Silt Clay is consistently EITHER the sum of other silt and clay values
-or a measuremetn where silt and clay values are not also available.
+or a measurement where silt and clay values are not also available.
 ```{r}
 phys_data %>%
   filter(Parameter != 'Organic Carbon (total)') %>%
@@ -354,7 +352,6 @@ phys_data %>%
                           Result),
          test = siltclay - (silt + clay) < 0.01 | (silt == 0 & clay == 0),
          .groups = 'drop')
-         
 ```
 
 We can selectively remove "Silt + Clay" values that are sums of other variables
@@ -372,11 +369,9 @@ phys_data %>%
   ungroup() %>%
   filter( ! (Parameter == 'Percent Silt and Clay' & test)) %>%
   select(-silt, -clay, -test)
-         
 ```
 
 #### Sand Totals
-
 Here's a quick way to find the samples from 2010 and 2011 we do NOT want to change.
 ```{r}
 phys_data %>%
@@ -408,12 +403,10 @@ phys_data %>%
                       Result),
          test =  abs(total - sand) < 0.001,
          .groups = 'drop')
-         
 ```
 It is.
 
 ## Total Grain Size
-
 Percent Total Grain Size was not calculated for all samples, and appears to
 Include the Gravel Fraction.  It should be removed from the data as inconsistent
 and possibly misleading.
@@ -462,7 +455,6 @@ phys_data %>%
            sum((Parameter == 'Percent Clay') * Result ),
          gravel = sum((Parameter == 'Percent Gravel') * Result),
          .groups = 'drop')
-         
 ```
 
 That points out that ZERO values here are "really" NAs.  
@@ -508,7 +500,7 @@ weighting each compound by its relative toxic effect, compared to some reference
 compound (conventionally TCDD).
 
 # Load SQuiRTs Data
-We compare those totals to the SQuiRTs, when availalbe. Ramboll Environ's Access
+We compare those totals to the SQuiRTs, when available. Ramboll Environ's Access
 database again contains a table derived from the SQuiRTs, containing ERL
 (Effects Range Low)  and ERM (Effects Range Medium) values for selected
 parameters.
@@ -532,6 +524,3 @@ xtabs(~ Param_Norm + Units_fin, data = squirts_data)
 ```
 So, SQuiRTs are originally in ppb, but Ramboll Environ converted units to
 µg/g dry or ng/g dry, consistent with the way concentrations were also reported.
-
-
-

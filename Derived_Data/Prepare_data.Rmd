@@ -71,7 +71,7 @@ Royal and Harraseeket Rivers discharge into West Bay.
 and Bailey Islands on the west and Phippsburg on the east. It includes Quahog
 Bay and the New Meadows River in southern Brunswick and Phippsburg.
 
-> Cape Small: Cape Small is the eastern most region of the bay. It includes the
+> Cape Small: Cape Small is the easternmost region of the bay. It includes the
 southern end of the Phippsburg peninsula to Small Point. The mouth of the Lower
 Kennebec River flows into the Gulf of Maine to the east of Phippsburg. While it
 is not part of Casco Bay, coastal circulation patterns indicate that the
@@ -269,7 +269,6 @@ pest_data   <- extract_simplify(sedtox_data,  'Pesticide')
 phys_data   <- extract_simplify(sedtox_data,  'Physical')
 ```
 
-
 # Remove Extraneous Totals
 In reviewing the data we noted that the data included some historical totals,
 based on different sets of constituents.  Ramboll removed most of those historic
@@ -285,8 +284,8 @@ The only remaining totals we found were in the PAHs data.  Over the years,
 different subsets of PAHs have been quantified, as analytic methods changed.  As
 a consequence, "totals" have included different numbers of constituents.
 Further, to make "totals" fully comparable to benchmarks or other studies,
-well-defined sets of compounds need to be summed. The result is a number of
-"totals" that were used in historical analyses, but that are not of value here.
+well-defined sets of compounds need to be summed. The results are a number of
+"totals" that were used in historical analyses, but those are not of value here.
 
 ## PAH Data
 Three historic PAH "Totals" were included in the data.  For analysis or
@@ -406,7 +405,7 @@ phys_data <- phys_data %>%
 ```
 
 ### Simplify Data
-Many of the remaining data columns have little meaning n the context of the 
+Many of the remaining data columns have little meaning in the context of the 
 physical data parameters, such as grain size, so we strip them out here.
 ```{r simplify_phys}
 phys_data <- phys_data %>%

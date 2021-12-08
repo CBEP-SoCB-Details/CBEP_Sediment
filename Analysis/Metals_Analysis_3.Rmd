@@ -81,7 +81,6 @@ sibling  <- file.path(parent,sibfldnm)
 niecefldnm <- 'Data_Subsets'
 niece <- file.path(sibling,niecefldnm)
 fn <- "metals.csv"
-
 ```
 
 ## Metals Data
@@ -133,7 +132,6 @@ metals_data <- metals_data %>%
 ### Select which Metals to Analyze
 ```{r}
 (xt <- xtabs(~ Parameter + Era, data = metals_data))
-
 ```
 
 ### Remove Data on Metals We will Not Analyze
@@ -224,7 +222,6 @@ metals_data %>%
   facet_wrap('Parameter', scales = 'free_y') +
   scale_y_log10() +
   theme(axis.text.x = element_text(angle = 45))
-  
 ```
 Note the wide variation....
 
@@ -270,7 +267,7 @@ All metals with significant trends are decreasing. Ramboll wrote about Selenium,
 pointing to what they saw as a POSITIVE slope, but their analysis omitted
 non-detects.  But because of the strong non-normal distribution of the selenium
 data, and because the selenium data from 2010 and 2011 had a very different 
-distribution from earlier observations, we don't believe either analysis....
+distribution from earlier observations, we don't believe either analysi..
 
 ## Model Diagnostic Plots
 ```{r}
@@ -294,7 +291,6 @@ estimators, or (nearly equivalently) Kendall's Tau.
 We could not get the following to work inside a pipe or `lapply()` call, so we
 fell back on using a loop.  Also, `mblm()` does not like having a log transform
 in the model formula, so we had to move the log transform outside the call.
-
 ```{r}
 lmods <- list()
 for (n in seq_along(mods$lr_mod)) {
@@ -410,7 +406,6 @@ error term.  Here, it is fit as part of the quadratic term.
 
 Our focus is on saying whether there are long term trends, so we are principally
 interested in the linear term. 
-
 ```{r}
 mods <- mods %>%
   mutate(era_anova = lapply(data,
@@ -493,7 +488,6 @@ for (n in seq_along(mods$Parameter)) {
 ```
 
 ### Regional Comparison Summary
-
 |Metal       | Comparison of Regions  |
 |------------|------------------------------------------------------------| 
 |Arsenic     | Cape Small is low.                                         |
@@ -573,7 +567,7 @@ sig_step <- names(step_p_vals[step_p_vals<0.025])
 sig_step
 ```
 
-### What's up with Lead and silver??
+### What's up with Lead and Silver
 Note that Lead is the only that selects a model with a significant interaction.
 ```{r}
 pb_dat <- metals_data %>%
@@ -583,10 +577,10 @@ summary(pb_mod)
 emmip(pb_mod, Region ~ Era, type = 'Response')
 rm(pb_dat, pb_mod)
 ```
+
 So, what we see is as RISE  followed by a DROP, except in Cape Small.  This is a
 complex message to convey.  Overall, we see a decline (since the linear terms
 are significant).  The exception is Cape Small, where there is no trend.
-
 ```{r}
 ag_dat <- metals_data %>%
   filter(Parameter == 'Silver')
@@ -600,7 +594,7 @@ The story for silver is a strong up and down pattern at all sites except
 West Bay, leading to a significant quadratic (but not linear) effect of Era.
 Few interactions are significant. The only Region where a decline is possible is 
 Cape Small, but eyeing the parameters (-0.045 - 0.503) = -0.548, with a standard 
-error probably about 0.2, the drop is likely significant, but we don't persue
+error probably about 0.2, the drop is likely significant, but we don't pursue
 a formal calculation to confirm).
 
 # Mixed Effects Models
@@ -674,7 +668,6 @@ for specific terms in the models via code.)
 ```{r}
 lapply(mods$me_mod,
                function(m) attr(terms(m), 'term.labels'))
-
 ```
 So by this model, ALL metals show temporal patterns (or at least AIC suggests
 temporal terms are useful for prediction). However, not all models show 
@@ -763,6 +756,3 @@ We could go with any of several models to report results.
    
 5.  For simplicity and consistency we chose to present results of the robust 
     linear models as "closest" to a consensus of all models.
-
-
-

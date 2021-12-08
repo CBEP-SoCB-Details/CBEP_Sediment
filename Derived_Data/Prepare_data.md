@@ -3,32 +3,32 @@ Prepare CBEP Historical Sediment Data
 Curtis C. Bohlen, Casco Bay Estuary Partnership
 October 13, 2020
 
-  - [Introduction](#introduction)
-      - [Sample Locations](#sample-locations)
-  - [Load Libraries](#load-libraries)
-  - [Load Data](#load-data)
-      - [Folder References](#folder-references)
-      - [Complete Data](#complete-data)
-          - [Add the “Era” variable](#add-the-era-variable)
-      - [SQuiRTs Data](#squirts-data)
-          - [SQuiRT Units](#squirt-units)
-      - [Sums and Totals](#sums-and-totals)
-      - [Subdivide Data BY Parameter
+-   [Introduction](#introduction)
+    -   [Sample Locations](#sample-locations)
+-   [Load Libraries](#load-libraries)
+-   [Load Data](#load-data)
+    -   [Folder References](#folder-references)
+    -   [Complete Data](#complete-data)
+        -   [Add the “Era” variable](#add-the-era-variable)
+    -   [SQuiRTs Data](#squirts-data)
+        -   [SQuiRT Units](#squirt-units)
+    -   [Sums and Totals](#sums-and-totals)
+    -   [Subdivide Data BY Parameter
         Group](#subdivide-data-by-parameter-group)
-  - [Remove Extraneous Totals](#remove-extraneous-totals)
-      - [PAH Data](#pah-data)
-      - [Physical Data](#physical-data)
-          - [Remove “Percent Total Grain
+-   [Remove Extraneous Totals](#remove-extraneous-totals)
+    -   [PAH Data](#pah-data)
+    -   [Physical Data](#physical-data)
+        -   [Remove “Percent Total Grain
             Size”](#remove-percent-total-grain-size)
-          - [Remove Extra “Organic Carbon (total)”
+        -   [Remove Extra “Organic Carbon (total)”
             Data](#remove-extra-organic-carbon-total-data)
-          - [Selectively Remove “Percent Silt and
+        -   [Selectively Remove “Percent Silt and
             Clay”](#selectively-remove-percent-silt-and-clay)
-          - [Selectively Remove “Percent
+        -   [Selectively Remove “Percent
             Sand”](#selectively-remove-percent-sand)
-          - [Recalculate Sums](#recalculate-sums)
-          - [Simplify Data](#simplify-data)
-  - [Save Results](#save-results)
+        -   [Recalculate Sums](#recalculate-sums)
+        -   [Simplify Data](#simplify-data)
+-   [Save Results](#save-results)
 
 <img
     src="https://www.cascobayestuary.org/wp-content/uploads/2014/04/logo_sm.jpg"
@@ -98,7 +98,7 @@ five major subregions of the Bay, as follows
 > includes Quahog Bay and the New Meadows River in southern Brunswick
 > and Phippsburg.
 
-> Cape Small: Cape Small is the eastern most region of the bay. It
+> Cape Small: Cape Small is the easternmost region of the bay. It
 > includes the southern end of the Phippsburg peninsula to Small Point.
 > The mouth of the Lower Kennebec River flows into the Gulf of Maine to
 > the east of Phippsburg. While it is not part of Casco Bay, coastal
@@ -113,21 +113,35 @@ five major subregions of the Bay, as follows
 library(tidyverse)
 ```
 
-    ## -- Attaching packages --------------------------------------------------------------------------------------- tidyverse 1.3.0 --
+    ## Warning: package 'tidyverse' was built under R version 4.0.5
 
-    ## v ggplot2 3.3.2     v purrr   0.3.4
-    ## v tibble  3.0.3     v dplyr   1.0.2
-    ## v tidyr   1.1.2     v stringr 1.4.0
-    ## v readr   1.3.1     v forcats 0.5.0
+    ## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
 
-    ## -- Conflicts ------------------------------------------------------------------------------------------ tidyverse_conflicts() --
+    ## v ggplot2 3.3.5     v purrr   0.3.4
+    ## v tibble  3.1.6     v dplyr   1.0.7
+    ## v tidyr   1.1.4     v stringr 1.4.0
+    ## v readr   2.1.0     v forcats 0.5.1
+
+    ## Warning: package 'ggplot2' was built under R version 4.0.5
+
+    ## Warning: package 'tidyr' was built under R version 4.0.5
+
+    ## Warning: package 'dplyr' was built under R version 4.0.5
+
+    ## Warning: package 'forcats' was built under R version 4.0.5
+
+    ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
 ``` r
 library(readxl)
 library(knitr)
+```
 
+    ## Warning: package 'knitr' was built under R version 4.0.5
+
+``` r
 # library(GGally)
 
 library(CBEPgraphics)
@@ -180,7 +194,7 @@ compounds, known as “SQuiRT” Tables. Ramboll’s table contains ERL
 parameters.
 
 Additional details on the SQuiRT tables are available in the archives
-containing data on analysis of toxic compounds in Porland Harbor
+containing data on analysis of toxic compounds in Portland Harbor
 sediments, available at <https://github.com/ccb60/PortlandHarborToxics>
 .
 
@@ -206,7 +220,7 @@ derived units. The derived units are documented in a data column called
 
 In general, metals screening levels are expressed in µg/g dry, while
 organic contaminants are expressed in ng/g dry. The former correspond
-approximately to parts per billion, the latter to parts per trillion.
+approximately to parts per million, the latter to parts per billion.
 
 ## Sums and Totals
 
@@ -254,8 +268,8 @@ sets, where we have been using maximum likelihood estimators of expected
 values.**
 
 We could recalculate totals using the category definitions in
-“SumGroups.xlsx”, but for now, for consistency with the original
-report, we use the sums as calculated by Ramboll.
+“SumGroups.xlsx”, but for now, for consistency with the original report,
+we use the sums as calculated by Ramboll.
 
 Most sums are expressed in ng/g dry weight (\~ ppb). The Sum of Dioxins
 and Furans is expressed in ng/kg, or pg/g (\~ppt). There are no SQuiRTs
@@ -346,13 +360,13 @@ years, different subsets of PAHs have been quantified, as analytic
 methods changed. As a consequence, “totals” have included different
 numbers of constituents. Further, to make “totals” fully comparable to
 benchmarks or other studies, well-defined sets of compounds need to be
-summed. The result is a number of “totals” that were used in historical
-analyses, but that are not of value here.
+summed. The results are a number of “totals” that were used in
+historical analyses, but those are not of value here.
 
 ## PAH Data
 
-Three historic PAH “Totals” were included in the data. FOr analysis or
-reanalysis of raw data, we do not want to include them, so we removbe
+Three historic PAH “Totals” were included in the data. For analysis or
+reanalysis of raw data, we do not want to include them, so we remove
 them here.
 
 ``` r
@@ -368,13 +382,13 @@ submitted to Ramboll. They are not clearly labeled as calculated sums,
 so in the following code we selectively remove the calculated values and
 add (recalculated) totals that are clearly labeled as sums.
 
-  - **Percent Total Grain Size** was a QA/QC check testing whether the
+-   **Percent Total Grain Size** was a QA/QC check testing whether the
     sum of all grain size data sums to one (or close to it).  
-  - **Percent Silt and Clay** is (almost always) a sum of separate silt
+-   **Percent Silt and Clay** is (almost always) a sum of separate silt
     and clay values. However, seven 2000 samples, one 2002 sample and
     seven 2010 samples only have “Percent Sand” and “Percent Silt and
     Clay” values.  
-  - Sand was subdivided into more precise sand fractions only in 2010
+-   Sand was subdivided into more precise sand fractions only in 2010
     and 2011. **Percent Sand** in those two years was USUALLY a SUM of
     the other sand fractions , except for seven samples from the NCCA
     from 2010.
@@ -400,10 +414,10 @@ phys_data <- phys_data %>%
 
 ### Remove Extra “Organic Carbon (total)” Data
 
-Organic Carbon is in the dataset (where it is available at all) in two
+Organic Carbon is in the data set (where it is available at all) in two
 different sets of units. We retain only the version that is in percent,
-for the simplicity of making sure that all the units in this dataset are
-the same.
+for the simplicity of making sure that all the units in this data set
+are the same.
 
 ``` r
 phys_data <- phys_data %>%
@@ -485,7 +499,7 @@ phys_data <- phys_data %>%
 
 ### Simplify Data
 
-Many of the remaining data columns have little meaning n the context of
+Many of the remaining data columns have little meaning in the context of
 the physical data parameters, such as grain size, so we strip them out
 here.
 

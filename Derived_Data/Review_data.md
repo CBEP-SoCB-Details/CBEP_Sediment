@@ -3,41 +3,41 @@ Review CBEP Historical Sediment Data
 Curtis C. Bohlen, Casco Bay Estuary Partnership
 October 13, 2020
 
-  - [Introduction](#introduction)
-      - [Sample Locations](#sample-locations)
-  - [Load Libraries](#load-libraries)
-  - [Load Data](#load-data)
-      - [Folder References](#folder-references)
-      - [Load Data](#load-data-1)
-          - [Add the “Era” variable](#add-the-era-variable)
-  - [Sums Data](#sums-data)
-  - [Examine Data Structure](#examine-data-structure)
-      - [Categories Sampled Each Year](#categories-sampled-each-year)
-      - [Parameters and Parameter
+-   [Introduction](#introduction)
+    -   [Sample Locations](#sample-locations)
+-   [Load Libraries](#load-libraries)
+-   [Load Data](#load-data)
+    -   [Folder References](#folder-references)
+    -   [Load Data](#load-data-1)
+        -   [Add the “Era” variable](#add-the-era-variable)
+-   [Sums Data](#sums-data)
+-   [Examine Data Structure](#examine-data-structure)
+    -   [Categories Sampled Each Year](#categories-sampled-each-year)
+    -   [Parameters and Parameter
         Groups](#parameters-and-parameter-groups)
-  - [Units](#units)
-  - [Subdivide Data By Parameter
+-   [Units](#units)
+-   [Subdivide Data By Parameter
     Group](#subdivide-data-by-parameter-group)
-  - [Check for Other Sums and Totals in the
+-   [Check for Other Sums and Totals in the
     Data](#check-for-other-sums-and-totals-in-the-data)
-      - [The “Official” Totals](#the-official-totals)
-      - [Checking All Data Subsets](#checking-all-data-subsets)
-          - [Butyl Tin Totals](#butyl-tin-totals)
-          - [Dioxin Totals](#dioxin-totals)
-          - [Conclusion](#conclusion)
-      - [Metals Data Totals](#metals-data-totals)
-      - [PAH Data Totals](#pah-data-totals)
-      - [PCB Data Totals](#pcb-data-totals)
-      - [Pesticides Data Totals](#pesticides-data-totals)
-      - [Physical Data Totals](#physical-data-totals)
-          - [Checks on sums and totals](#checks-on-sums-and-totals)
-      - [Total Grain Size](#total-grain-size)
-  - [Examine Structure of Sums Data](#examine-structure-of-sums-data)
-  - [Parameters and Parameter
+    -   [The “Official” Totals](#the-official-totals)
+    -   [Checking All Data Subsets](#checking-all-data-subsets)
+        -   [Butyl Tin Totals](#butyl-tin-totals)
+        -   [Dioxin Totals](#dioxin-totals)
+        -   [Conclusion](#conclusion)
+    -   [Metals Data Totals](#metals-data-totals)
+    -   [PAH Data Totals](#pah-data-totals)
+    -   [PCB Data Totals](#pcb-data-totals)
+    -   [Pesticides Data Totals](#pesticides-data-totals)
+    -   [Physical Data Totals](#physical-data-totals)
+        -   [Checks on sums and totals](#checks-on-sums-and-totals)
+    -   [Total Grain Size](#total-grain-size)
+-   [Examine Structure of Sums Data](#examine-structure-of-sums-data)
+-   [Parameters and Parameter
     Groups](#parameters-and-parameter-groups-1)
-  - [Units](#units-1)
-  - [Load SQuiRTs Data](#load-squirts-data)
-      - [Units](#units-2)
+-   [Units](#units-1)
+-   [Load SQuiRTs Data](#load-squirts-data)
+    -   [Units](#units-2)
 
 <img
     src="https://www.cascobayestuary.org/wp-content/uploads/2014/04/logo_sm.jpg"
@@ -107,7 +107,7 @@ five major subregions of the Bay, as follows
 > includes Quahog Bay and the New Meadows River in southern Brunswick
 > and Phippsburg.
 
-> Cape Small: Cape Small is the eastern most region of the bay. It
+> Cape Small: Cape Small is the easternmost region of the bay. It
 > includes the southern end of the Phippsburg peninsula to Small Point.
 > The mouth of the Lower Kennebec River flows into the Gulf of Maine to
 > the east of Phippsburg. While it is not part of Casco Bay, coastal
@@ -122,21 +122,35 @@ five major subregions of the Bay, as follows
 library(tidyverse)
 ```
 
-    ## -- Attaching packages --------------------------------------------------------------------------------------- tidyverse 1.3.0 --
+    ## Warning: package 'tidyverse' was built under R version 4.0.5
 
-    ## v ggplot2 3.3.2     v purrr   0.3.4
-    ## v tibble  3.0.3     v dplyr   1.0.2
-    ## v tidyr   1.1.2     v stringr 1.4.0
-    ## v readr   1.3.1     v forcats 0.5.0
+    ## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
 
-    ## -- Conflicts ------------------------------------------------------------------------------------------ tidyverse_conflicts() --
+    ## v ggplot2 3.3.5     v purrr   0.3.4
+    ## v tibble  3.1.6     v dplyr   1.0.7
+    ## v tidyr   1.1.4     v stringr 1.4.0
+    ## v readr   2.1.0     v forcats 0.5.1
+
+    ## Warning: package 'ggplot2' was built under R version 4.0.5
+
+    ## Warning: package 'tidyr' was built under R version 4.0.5
+
+    ## Warning: package 'dplyr' was built under R version 4.0.5
+
+    ## Warning: package 'forcats' was built under R version 4.0.5
+
+    ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
 ``` r
 library(readxl)
 library(knitr)
+```
 
+    ## Warning: package 'knitr' was built under R version 4.0.5
+
+``` r
 # library(GGally)
 
 library(CBEPgraphics)
@@ -240,7 +254,7 @@ knitr::kable(xtabs(~Parameter + Parameter_Group, data = tmp))
 ```
 
 |                                             | CDDF | Inorganic | Organotin | PAH | PCB | Pesticide | Physical | Radio |
-| :------------------------------------------ | ---: | --------: | --------: | --: | --: | --------: | -------: | ----: |
+|:--------------------------------------------|-----:|----------:|----------:|----:|----:|----------:|---------:|------:|
 | 1,2,3,4,6,7,8-Heptachlorodibenzo-p-dioxin   |   79 |         0 |         0 |   0 |   0 |         0 |        0 |     0 |
 | 1,2,3,4,6,7,8-Heptachlorodibenzofuran       |   79 |         0 |         0 |   0 |   0 |         0 |        0 |     0 |
 | 1,2,3,4,7,8-Hexachlorodibenzo-p-dioxin      |   79 |         0 |         0 |   0 |   0 |         0 |        0 |     0 |
@@ -527,8 +541,10 @@ xtabs(~Era + Parameter_Group  + Units, data = sedtox_data)
     ##   2000s  736         0         0    0    0         0        0     0
     ##   2010s  459         0         0    0    0         0        0     0
 
-Note that metals are in \(\mu g/g\) or ppm, organics are in \(n g/g\) or
-ppb, physical observations in percent.
+Note that metals are in *μ**g*/*g* or ppm, organics are in *n**g*/*g* or
+ppb, or (for dioxins and furans) in ng/kg, or parts per trillion (ppt is
+ambiguous, but usually refers to parts per trillion). Physical
+observations are generally in percent.
 
 # Subdivide Data By Parameter Group
 
@@ -564,8 +580,6 @@ Ramboll Calculated the following “Official” Totals, which
 
 1.  Should be in the dataset, and  
 2.  Are easy to remove because we have a complete list.
-
-<!-- end list -->
 
 ``` r
 xtabs(~ Parameter + Parameter_Group , data = sums_data)
@@ -784,14 +798,14 @@ xtabs(~ Parameter + Parameter_Group , data = pah_data)
     ##   Phenanthrene               147
     ##   Pyrene                     225
 
-So under Pahs, we have six totals,
+So under PAHs, we have six totals,
 
 The following PAH Totals are NOT included in the “official” totals, and
 should be removed from the data:
 
-  - PAHs (High MW 13)  
-  - PAHs (Low MW 9)  
-  - PAHs (total 22)
+-   PAHs (High MW 13)  
+-   PAHs (Low MW 9)  
+-   PAHs (total 22)
 
 ## PCB Data Totals
 
@@ -972,15 +986,15 @@ None of the parameters here with ‘Total’ in the names are sums, however,
 some of the OTHER values represent sums calculated before the data was
 submitted to Ramboll.
 
-  - **Percent Silt and Clay** is (almost always) a sum of separate silt
+-   **Percent Silt and Clay** is (almost always) a sum of separate silt
     and clay values. However, seven 2000 samples, one 2002 sample and
     seven 2010 samples only have “Percent Sand” and “Percent Silt and
     Clay” values.
-  - Sand was subdivided into more precise sand fractions only in 2010
+-   Sand was subdivided into more precise sand fractions only in 2010
     and 2011. **Percent Sand** in those two years was USUALLY a SUM of
     the other sand fractions , except for seven samples from the NCCA
     from 2010.
-  - **Percent Total Grain Size** was a QA/QC check testing whether the
+-   **Percent Total Grain Size** was a QA/QC check testing whether the
     sum of all grain size data sums to one (or close to it).
 
 Note that “Percent Gravel” was inconsistently reported, making it
@@ -996,7 +1010,7 @@ data.
 #### Silt And Clay Totals
 
 Silt Clay is consistently EITHER the sum of other silt and clay values
-or a measuremetn where silt and clay values are not also available.
+or a measurement where silt and clay values are not also available.
 
 ``` r
 phys_data %>%
@@ -1049,23 +1063,23 @@ phys_data %>%
 ```
 
     ## # A tibble: 1,248 x 26
-    ##    Project Region Location Substation Lat_N Long_W Sample_ID Sample_Year
-    ##    <chr>   <chr>  <chr>    <chr>      <dbl>  <dbl> <chr>           <dbl>
-    ##  1 1991-2~ Cape ~ L.CS01   S.CS01      43.7  -69.9 1991.CS01        1991
-    ##  2 1991-2~ Cape ~ L.CS01   S.CS01      43.7  -69.9 1991.CS01        1991
-    ##  3 1991-2~ Cape ~ L.CS01   S.CS01      43.7  -69.9 1991.CS01        1991
-    ##  4 1991-2~ Cape ~ L.CS02   S.CS02      43.7  -69.9 1991.CS02        1991
-    ##  5 1991-2~ Cape ~ L.CS02   S.CS02      43.7  -69.9 1991.CS02        1991
-    ##  6 1991-2~ Cape ~ L.CS02   S.CS02      43.7  -69.9 1991.CS02        1991
-    ##  7 1991-2~ Cape ~ L.CS03   S.CS03      43.7  -69.9 1991.CS03        1991
-    ##  8 1991-2~ Cape ~ L.CS03   S.CS03      43.7  -69.9 1991.CS03        1991
-    ##  9 1991-2~ Cape ~ L.CS03   S.CS03      43.7  -69.9 1991.CS03        1991
-    ## 10 1991-2~ Cape ~ L.CS04Q  S.CS04      43.7  -69.9 1991.CS04        1991
+    ##    Project       Region   Location Substation Lat_N Long_W Sample_ID Sample_Year
+    ##    <chr>         <chr>    <chr>    <chr>      <dbl>  <dbl> <chr>           <dbl>
+    ##  1 1991-2003 Ca~ Cape Sm~ L.CS01   S.CS01      43.7  -69.9 1991.CS01        1991
+    ##  2 1991-2003 Ca~ Cape Sm~ L.CS01   S.CS01      43.7  -69.9 1991.CS01        1991
+    ##  3 1991-2003 Ca~ Cape Sm~ L.CS01   S.CS01      43.7  -69.9 1991.CS01        1991
+    ##  4 1991-2003 Ca~ Cape Sm~ L.CS02   S.CS02      43.7  -69.9 1991.CS02        1991
+    ##  5 1991-2003 Ca~ Cape Sm~ L.CS02   S.CS02      43.7  -69.9 1991.CS02        1991
+    ##  6 1991-2003 Ca~ Cape Sm~ L.CS02   S.CS02      43.7  -69.9 1991.CS02        1991
+    ##  7 1991-2003 Ca~ Cape Sm~ L.CS03   S.CS03      43.7  -69.9 1991.CS03        1991
+    ##  8 1991-2003 Ca~ Cape Sm~ L.CS03   S.CS03      43.7  -69.9 1991.CS03        1991
+    ##  9 1991-2003 Ca~ Cape Sm~ L.CS03   S.CS03      43.7  -69.9 1991.CS03        1991
+    ## 10 1991-2003 Ca~ Cape Sm~ L.CS04Q  S.CS04      43.7  -69.9 1991.CS04        1991
     ## # ... with 1,238 more rows, and 18 more variables: Sample_Date <dttm>,
     ## #   Replicate <dbl>, Sample_Type <chr>, Matrix <chr>, Parameter_Group <chr>,
     ## #   Parameter <chr>, CASRN <chr>, Result <dbl>, MDL <dbl>, RL <dbl>,
-    ## #   Units <chr>, Detect <chr>, Det_Flag <dbl>, Qualifier <chr>, `QA
-    ## #   Qualifier` <chr>, Reportable_Result <chr>, Method <chr>, Era <fct>
+    ## #   Units <chr>, Detect <chr>, Det_Flag <dbl>, Qualifier <chr>,
+    ## #   QA Qualifier <chr>, Reportable_Result <chr>, Method <chr>, Era <fct>
 
 #### Sand Totals
 
@@ -1079,23 +1093,23 @@ phys_data %>%
 ```
 
     ## # A tibble: 21 x 26
-    ##    Project Region Location Substation Lat_N Long_W Sample_ID Sample_Year
-    ##    <chr>   <chr>  <chr>    <chr>      <dbl>  <dbl> <chr>           <dbl>
-    ##  1 NCCA D~ Outer~ L.1015   <NA>        43.7  -70.1 NCCA10-1~        2010
-    ##  2 NCCA D~ East ~ L.1013   <NA>        43.9  -69.9 NCCA10-1~        2010
-    ##  3 NCCA D~ East ~ L.1016   <NA>        43.7  -70.0 NCCA10-1~        2010
-    ##  4 NCCA D~ West ~ L.1019   <NA>        43.8  -70.0 NCCA10-1~        2010
-    ##  5 NCCA D~ Outer~ L.1017   <NA>        43.6  -70.2 NCCA10-1~        2010
-    ##  6 NCCA D~ Inner~ L.1021   <NA>        43.7  -70.2 NCCA10-1~        2010
-    ##  7 NCCA D~ Outer~ L.1022   <NA>        43.7  -70.1 NCCA10-1~        2010
-    ##  8 NCCA D~ Outer~ L.1015   <NA>        43.7  -70.1 NCCA10-1~        2010
-    ##  9 NCCA D~ East ~ L.1013   <NA>        43.9  -69.9 NCCA10-1~        2010
-    ## 10 NCCA D~ East ~ L.1016   <NA>        43.7  -70.0 NCCA10-1~        2010
+    ##    Project         Region Location Substation Lat_N Long_W Sample_ID Sample_Year
+    ##    <chr>           <chr>  <chr>    <chr>      <dbl>  <dbl> <chr>           <dbl>
+    ##  1 NCCA Draft 2010 Outer~ L.1015   <NA>        43.7  -70.1 NCCA10-1~        2010
+    ##  2 NCCA Draft 2010 East ~ L.1013   <NA>        43.9  -69.9 NCCA10-1~        2010
+    ##  3 NCCA Draft 2010 East ~ L.1016   <NA>        43.7  -70.0 NCCA10-1~        2010
+    ##  4 NCCA Draft 2010 West ~ L.1019   <NA>        43.8  -70.0 NCCA10-1~        2010
+    ##  5 NCCA Draft 2010 Outer~ L.1017   <NA>        43.6  -70.2 NCCA10-1~        2010
+    ##  6 NCCA Draft 2010 Inner~ L.1021   <NA>        43.7  -70.2 NCCA10-1~        2010
+    ##  7 NCCA Draft 2010 Outer~ L.1022   <NA>        43.7  -70.1 NCCA10-1~        2010
+    ##  8 NCCA Draft 2010 Outer~ L.1015   <NA>        43.7  -70.1 NCCA10-1~        2010
+    ##  9 NCCA Draft 2010 East ~ L.1013   <NA>        43.9  -69.9 NCCA10-1~        2010
+    ## 10 NCCA Draft 2010 East ~ L.1016   <NA>        43.7  -70.0 NCCA10-1~        2010
     ## # ... with 11 more rows, and 18 more variables: Sample_Date <dttm>,
     ## #   Replicate <dbl>, Sample_Type <chr>, Matrix <chr>, Parameter_Group <chr>,
     ## #   Parameter <chr>, CASRN <chr>, Result <dbl>, MDL <dbl>, RL <dbl>,
-    ## #   Units <chr>, Detect <chr>, Det_Flag <dbl>, Qualifier <chr>, `QA
-    ## #   Qualifier` <chr>, Reportable_Result <chr>, Method <chr>, Era <fct>
+    ## #   Units <chr>, Detect <chr>, Det_Flag <dbl>, Qualifier <chr>,
+    ## #   QA Qualifier <chr>, Reportable_Result <chr>, Method <chr>, Era <fct>
 
 So we can invert that and add a filter for the parameter, and find the
 data rows we want to delete.
@@ -1108,23 +1122,23 @@ phys_data %>%
 ```
 
     ## # A tibble: 75 x 26
-    ##    Project Region Location Substation Lat_N Long_W Sample_ID Sample_Year
-    ##    <chr>   <chr>  <chr>    <chr>      <dbl>  <dbl> <chr>           <dbl>
-    ##  1 Casco ~ Outer~ L.OB05   S.OB05      43.7  -70.1 CBEP2010~        2010
-    ##  2 Casco ~ Cape ~ L.CS03T  S.CS03T     43.7  -69.9 CBEP2010~        2011
-    ##  3 Casco ~ Inner~ L.IB03T  S.IB03      43.7  -70.2 CBEP2010~        2010
-    ##  4 Casco ~ West ~ L.WB03   S.WB03      43.8  -70.0 CBEP2010~        2010
-    ##  5 Casco ~ Inner~ L.SW01T  S.SW01      43.6  -70.3 CBEP2010~        2010
-    ##  6 Casco ~ Outer~ L.OB05   S.OB05      43.7  -70.1 CBEP2010~        2010
-    ##  7 Casco ~ West ~ L.WB04T  S.WB04      43.8  -70.0 CBEP2010~        2011
-    ##  8 Casco ~ Inner~ L.SW02   S.SW02      43.6  -70.3 CBEP2010~        2010
-    ##  9 Casco ~ East ~ L.EB04   S.EB04      43.7  -69.9 CBEP2010~        2011
-    ## 10 Casco ~ Inner~ L.IB02   S.IB02      43.7  -70.2 CBEP2010~        2010
+    ##    Project       Region  Location Substation Lat_N Long_W Sample_ID  Sample_Year
+    ##    <chr>         <chr>   <chr>    <chr>      <dbl>  <dbl> <chr>            <dbl>
+    ##  1 Casco Bay Es~ Outer ~ L.OB05   S.OB05      43.7  -70.1 CBEP2010-~        2010
+    ##  2 Casco Bay Es~ Cape S~ L.CS03T  S.CS03T     43.7  -69.9 CBEP2010-~        2011
+    ##  3 Casco Bay Es~ Inner ~ L.IB03T  S.IB03      43.7  -70.2 CBEP2010-~        2010
+    ##  4 Casco Bay Es~ West B~ L.WB03   S.WB03      43.8  -70.0 CBEP2010-~        2010
+    ##  5 Casco Bay Es~ Inner ~ L.SW01T  S.SW01      43.6  -70.3 CBEP2010-~        2010
+    ##  6 Casco Bay Es~ Outer ~ L.OB05   S.OB05      43.7  -70.1 CBEP2010-~        2010
+    ##  7 Casco Bay Es~ West B~ L.WB04T  S.WB04      43.8  -70.0 CBEP2010-~        2011
+    ##  8 Casco Bay Es~ Inner ~ L.SW02   S.SW02      43.6  -70.3 CBEP2010-~        2010
+    ##  9 Casco Bay Es~ East B~ L.EB04   S.EB04      43.7  -69.9 CBEP2010-~        2011
+    ## 10 Casco Bay Es~ Inner ~ L.IB02   S.IB02      43.7  -70.2 CBEP2010-~        2010
     ## # ... with 65 more rows, and 18 more variables: Sample_Date <dttm>,
     ## #   Replicate <dbl>, Sample_Type <chr>, Matrix <chr>, Parameter_Group <chr>,
     ## #   Parameter <chr>, CASRN <chr>, Result <dbl>, MDL <dbl>, RL <dbl>,
-    ## #   Units <chr>, Detect <chr>, Det_Flag <dbl>, Qualifier <chr>, `QA
-    ## #   Qualifier` <chr>, Reportable_Result <chr>, Method <chr>, Era <fct>
+    ## #   Units <chr>, Detect <chr>, Det_Flag <dbl>, Qualifier <chr>,
+    ## #   QA Qualifier <chr>, Reportable_Result <chr>, Method <chr>, Era <fct>
 
 Note that we found 75 values, exactly what we would expect based on
 sample frequencies in the cross-tabs, above.
@@ -1217,24 +1231,24 @@ phys_data %>%
 ```
 
     ## # A tibble: 12 x 26
-    ##    Project Region Location Substation Lat_N Long_W Sample_ID Sample_Year
-    ##    <chr>   <chr>  <chr>    <chr>      <dbl>  <dbl> <chr>           <dbl>
-    ##  1 Casco ~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010~        2011
-    ##  2 Casco ~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010~        2011
-    ##  3 Casco ~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010~        2011
-    ##  4 Casco ~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010~        2011
-    ##  5 Casco ~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010~        2011
-    ##  6 Casco ~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010~        2011
-    ##  7 Casco ~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010~        2011
-    ##  8 Casco ~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010~        2011
-    ##  9 Casco ~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010~        2011
-    ## 10 Casco ~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010~        2011
-    ## 11 Casco ~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010~        2011
-    ## 12 Casco ~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010~        2011
+    ##    Project        Region Location Substation Lat_N Long_W Sample_ID  Sample_Year
+    ##    <chr>          <chr>  <chr>    <chr>      <dbl>  <dbl> <chr>            <dbl>
+    ##  1 Casco Bay Est~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010-~        2011
+    ##  2 Casco Bay Est~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010-~        2011
+    ##  3 Casco Bay Est~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010-~        2011
+    ##  4 Casco Bay Est~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010-~        2011
+    ##  5 Casco Bay Est~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010-~        2011
+    ##  6 Casco Bay Est~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010-~        2011
+    ##  7 Casco Bay Est~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010-~        2011
+    ##  8 Casco Bay Est~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010-~        2011
+    ##  9 Casco Bay Est~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010-~        2011
+    ## 10 Casco Bay Est~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010-~        2011
+    ## 11 Casco Bay Est~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010-~        2011
+    ## 12 Casco Bay Est~ West ~ L.WB08T  S.WB08      43.7  -70.0 CBEP2010-~        2011
     ## # ... with 18 more variables: Sample_Date <dttm>, Replicate <dbl>,
     ## #   Sample_Type <chr>, Matrix <chr>, Parameter_Group <chr>, Parameter <chr>,
     ## #   CASRN <chr>, Result <dbl>, MDL <dbl>, RL <dbl>, Units <chr>, Detect <chr>,
-    ## #   Det_Flag <dbl>, Qualifier <chr>, `QA Qualifier` <chr>,
+    ## #   Det_Flag <dbl>, Qualifier <chr>, QA Qualifier <chr>,
     ## #   Reportable_Result <chr>, Method <chr>, Era <fct>
 
 The inconsistent reporting of the Gravel Fraction makes it impossible to
@@ -1297,7 +1311,7 @@ knitr::kable(xtabs(~Parameter + Parameter_Group, data = tmp))
 ```
 
 |                        | CDDF | Organotin | PAH | PCB | Pesticide |
-| :--------------------- | ---: | --------: | --: | --: | --------: |
+|:-----------------------|-----:|----------:|----:|----:|----------:|
 | CDD/CDF (total)        |   79 |         0 |   0 |   0 |         0 |
 | Butyltin (mono+di+tri) |    0 |       123 |   0 |   0 |         0 |
 | PAHs (High MW)         |    0 |         0 | 225 |   0 |         0 |
@@ -1346,15 +1360,15 @@ Ramboll Standardized units in the Access database, so, MOST sums are
 expressed in ng/g dry weight (\~ ppb).
 
 The Dioxins and Furans are expressed in ng/kg, or pg/g or approximately
-parts per trilion. There are no Squirts for Dioxins and Furans. Instead,
-Ramboll ALSO expressed them in TEQ – Tox equivalents. Toxic equivalents
-provide a way to estimate the cumulative toxic effect of a mixture of
-related chemicals by eighting each compound by its relative toxic
-effect, compared to some reference compound (conventionally TCDD).
+parts per trillion. There are no Squirts for Dioxins and Furans.
+Instead, Ramboll ALSO expressed them in TEQ – Tox equivalents. Toxic
+equivalents provide a way to estimate the cumulative toxic effect of a
+mixture of related chemicals by weighting each compound by its relative
+toxic effect, compared to some reference compound (conventionally TCDD).
 
 # Load SQuiRTs Data
 
-We compare those totals to the SQuiRTs, when availalbe. Ramboll
+We compare those totals to the SQuiRTs, when available. Ramboll
 Environ’s Access database again contains a table derived from the
 SQuiRTs, containing ERL (Effects Range Low) and ERM (Effects Range
 Medium) values for selected parameters.
